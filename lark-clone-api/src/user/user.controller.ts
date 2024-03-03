@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  ParseIntPipe,
   UseGuards,
   UseInterceptors,
   ClassSerializerInterceptor,
@@ -19,6 +18,7 @@ import { Roles } from '../roles/roles.decorator';
 import { Role } from '../roles/roles.interface';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { User } from './entities/user.entity';
+import { SkipJwtAuth } from 'src/auth/constants';
 
 @ApiTags('用户详情')
 @ApiBearerAuth()
@@ -29,6 +29,7 @@ export class UserController {
   @ApiBody({ type: CreateUserDto })
   @ApiResponse({ type: User })
   @UseInterceptors(ClassSerializerInterceptor)
+  @SkipJwtAuth()
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);

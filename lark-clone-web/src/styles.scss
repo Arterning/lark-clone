@@ -40,6 +40,23 @@ body {
 }
 
 
+.login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+}
+
+
+.register {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .main {
   padding-top: 48px;
   padding-left: 256px;
@@ -98,7 +115,39 @@ body {
 }
 
 
+.todo-comment-history {
+
+  .todo-comment {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    padding: 10px;
+    border-bottom: 1px solid #e5e5e5;
+
+    .head {
+      display: flex;
+      flex-direction: row;
+      justify-content: start;
+    }
+
+    .content {
+      flex: 1;
+    }
+  }
+}
+
+
 .todo-comment-title {
+  padding: 10px 0;
+  margin-top: 20px;
+  font-size: 18px;
+}
+
+
+
+
+.sub-todo-title {
   padding: 10px 0;
   margin-top: 20px;
   font-size: 18px;

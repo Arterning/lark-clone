@@ -71,7 +71,7 @@ export class Todo {
   @OneToMany(() => TodoComment, (comment) => comment.todo)
   comments: TodoComment[];
 
-  @TreeParent({ onDelete: 'NO ACTION' })
+  @TreeParent({ onDelete: 'CASCADE' })
   parent: Todo;
 
   @TreeChildren({ cascade: true })

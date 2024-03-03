@@ -3,14 +3,16 @@ import { Button, DatePicker, Drawer, Flex, Input, Select, Space } from "antd";
 import { TodoComment, TodoItem, TodoStatus } from "../../types/Todo";
 import http from "../../http";
 import {
+  EditOutlined,
   CalendarOutlined,
   UserOutlined,
   FileTextOutlined,
   CommentOutlined,
+  FileOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { User } from "../../types/User";
-// import { toast } from 'sonner'
+import toast, { Toaster } from "react-hot-toast";
 
 interface IProps {
   todoDetail: TodoItem;
@@ -19,40 +21,64 @@ interface IProps {
   onClose?: () => void;
 }
 
-
 const TodoDrawer = (props: IProps) => {
   const { visible, onClose, todoDetail, users } = props;
 
   const [editTodo, setEditTodo] = useState<TodoItem>(todoDetail);
   const [comment, setComment] = useState<string>("");
+  const [subTodoTitle, setSubTodoTitle] = useState<string>("");
 
   const [commentHistory, setCommentHistory] = useState<TodoComment[]>([]);
+  const [subTodoList, setSubTodoList] = useState<TodoItem[]>([]);
 
   useEffect(() => {
     setEditTodo(todoDetail);
 
     if (todoDetail?.id) {
       http.get(`/todo/${todoDetail?.id}`).then(({ data }) => {
-        console.log(data?.comments);
         setCommentHistory(data?.comments || []);
+        setSubTodoList(data?.children || []);
       });
     }
-
   }, [todoDetail]);
 
-  const handleFollowTodo = async () => {
-    await http.post(`/todo/follow-todo`, {
-      todoId: todoDetail?.id,
-    });
+  const handleCreateSubTodo = async () => {
+    try {
+      await http.post<TodoItem>(`/todo`, {
+        title: subTodoTitle,
+        parentId: todoDetail?.id,
+        status: TodoStatus.TODO,
+      });
+      http.get(`/todo/${todoDetail?.id}`).then(({ data }) => {
+        setSubTodoList(data?.children || []);
+      });
+      toast.success("操作成功");
+    } catch (error) {
+      toast.error("操作失败");
+    }
+  };
 
-    // toast.success('关注成功')
+  const handleFollowTodo = async () => {
+    try {
+      await http.post(`/todo/follow-todo`, {
+        todoId: todoDetail?.id,
+      });
+      toast.success("操作成功");
+    } catch (error) {
+      toast.error("操作失败");
+    }
   };
 
   const handleFinishTodo = async () => {
-    await http.patch(`/todo/${todoDetail?.id}`, {
-      ...editTodo,
-      status: TodoStatus.DONE,
-    });
+    try {
+      await http.patch(`/todo/${todoDetail?.id}`, {
+        ...editTodo,
+        status: TodoStatus.DONE,
+      });
+      toast.success("操作成功");
+    } catch (error) {
+      toast.error("操作失败");
+    }
   };
 
   const handleOnSave = async () => {
@@ -62,23 +88,36 @@ const TodoDrawer = (props: IProps) => {
     const formattedEndDate = editTodo.endDate
       ? dayjs(editTodo.endDate).format("YYYY-MM-DD")
       : undefined;
-    await http.patch(`/todo/${todoDetail?.id}`, {
-      ...editTodo,
-      startDate: formattedStartDate,
-      endDate: formattedEndDate,
-      assignee: editTodo.assignee?.id,
-    });
+    try {
+      await http.patch(`/todo/${todoDetail?.id}`, {
+        ...editTodo,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        assignee: editTodo.assignee?.id,
+      });
+      toast.success("操作成功");
+    } catch (error) {
+      toast.error("操作失败");
+    }
+    onClose?.();
   };
 
   const handleOnComment = async () => {
-    await http.post(`/todo/${todoDetail?.id}/comment`, {
-      content: comment,
-    });
     setComment("");
 
-    http.get(`/todo/${todoDetail?.id}`).then(({ data }) => {
-      setCommentHistory(data?.comments || []);
-    });
+    try {
+      await http.post(`/todo/${todoDetail?.id}/comment`, {
+        content: comment,
+      });
+
+      http.get(`/todo/${todoDetail?.id}`).then(({ data }) => {
+        setCommentHistory(data?.comments || []);
+      });
+
+      toast.success("操作成功");
+    } catch (error) {
+      toast.error("操作失败");
+    }
   };
 
   const handleSelectAssignee = (value: string) => {
@@ -115,15 +154,11 @@ const TodoDrawer = (props: IProps) => {
           <CalendarOutlined rev={""} />
           <DatePicker
             value={editTodo?.startDate}
-            onChange={(date) =>
-              setEditTodo({ ...editTodo, startDate: date})
-            }
+            onChange={(date) => setEditTodo({ ...editTodo, startDate: date })}
           />
           <DatePicker
             value={editTodo?.endDate}
-            onChange={(date) =>
-              setEditTodo({ ...editTodo, endDate: date})
-            }
+            onChange={(date) => setEditTodo({ ...editTodo, endDate: date })}
           />
         </Space>
         <Space>
@@ -136,6 +171,7 @@ const TodoDrawer = (props: IProps) => {
           ></Input.TextArea>
         </Space>
         <Space>
+          <EditOutlined rev={""} />
           <Button onClick={handleFollowTodo}>关注</Button>
           <Button onClick={handleFinishTodo}>完成任务</Button>
           <Button onClick={handleOnSave}>提交</Button>
@@ -143,11 +179,6 @@ const TodoDrawer = (props: IProps) => {
       </Flex>
 
       <Flex gap="middle" vertical>
-        <div className="todo-comment-history">
-          {commentHistory.map((comment, index) => (
-            <div key={index}>{comment.content}</div>
-          ))}
-        </div>
         <div className="todo-comment-title">评论</div>
         <Space>
           <CommentOutlined rev={""} />
@@ -159,6 +190,50 @@ const TodoDrawer = (props: IProps) => {
         <Space>
           <Button onClick={handleOnComment}>评论</Button>
         </Space>
+        <div className="todo-comment-history">
+          {commentHistory.map((comment, index) => (
+            <div className="todo-comment" key={index}>
+              <div className="head">
+                <Space>
+                  <span>{comment.createdBy?.username || "admin"}</span>
+                  <span>
+                    {dayjs(comment.createdAt).format("YYYY-MM-DD hh:mm")}
+                  </span>
+                </Space>
+              </div>
+              <div className="content">{comment.content}</div>
+            </div>
+          ))}
+        </div>
+      </Flex>
+
+      <Flex gap="middle" vertical>
+        <div className="sub-todo-title">子任务</div>
+        <Space>
+          <FileOutlined rev={""} />
+          <Input
+            value={subTodoTitle}
+            onChange={(e) => setSubTodoTitle(e.target.value)}
+          ></Input>
+        </Space>
+        <Space>
+          <Button onClick={handleCreateSubTodo}>创建子任务</Button>
+        </Space>
+        <div className="todo-comment-history">
+          {subTodoList.map((subTodo, index) => (
+            <div className="todo-comment" key={index}>
+              <div className="head">
+                <Space>
+                  <span>{subTodo.createdBy?.username || "admin"}</span>
+                  <span>
+                    {dayjs(subTodo.createdAt).format("YYYY-MM-DD hh:mm")}
+                  </span>
+                </Space>
+              </div>
+              <div className="content">{subTodo.title}</div>
+            </div>
+          ))}
+        </div>
       </Flex>
     </Drawer>
   );

@@ -15,6 +15,7 @@ import { Todo } from './entities/todo.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FollowTodoDto } from './dto/follow-todo.dto';
 import { QueryTodoDto } from './dto/query-todo.dto';
+import { SkipJwtAuth } from 'src/auth/constants';
 
 @ApiTags('待办事项')
 @ApiBearerAuth()
@@ -24,9 +25,9 @@ export class TodoController {
 
   /**
    * 创建任务
-   * @param request 
-   * @param createTodoDto 
-   * @returns 
+   * @param request
+   * @param createTodoDto
+   * @returns
    */
   @Post()
   async create(
@@ -38,9 +39,9 @@ export class TodoController {
 
   /**
    * 关注任务
-   * @param request 
-   * @param followTodoDto 
-   * @returns 
+   * @param request
+   * @param followTodoDto
+   * @returns
    */
   @Post('follow-todo')
   async followTodo(
@@ -57,6 +58,7 @@ export class TodoController {
    * @returns
    */
   @Get('')
+  @SkipJwtAuth()
   async findAll(): Promise<Todo[]> {
     return this.todoService.findAll();
   }
@@ -67,7 +69,10 @@ export class TodoController {
    * @returns
    */
   @Post('owned')
-  async findOwnedTodos(@Request() request, @Body() query: QueryTodoDto): Promise<Todo[]> {
+  async findOwnedTodos(
+    @Request() request,
+    @Body() query: QueryTodoDto,
+  ): Promise<Todo[]> {
     const { id } = request.user;
     return this.todoService.findOwnedTodos(id, query);
   }
@@ -78,7 +83,10 @@ export class TodoController {
    * @returns
    */
   @Post('following')
-  async findFollowingTodos(@Request() request, @Body() query: QueryTodoDto): Promise<Todo[]> {
+  async findFollowingTodos(
+    @Request() request,
+    @Body() query: QueryTodoDto,
+  ): Promise<Todo[]> {
     const { id } = request.user;
     return this.todoService.findFollowingTodos(id, query);
   }
@@ -99,7 +107,10 @@ export class TodoController {
    * @returns
    */
   @Post('created')
-  async findCreatedTodos(@Request() request, @Body() query: QueryTodoDto): Promise<Todo[]> {
+  async findCreatedTodos(
+    @Request() request,
+    @Body() query: QueryTodoDto,
+  ): Promise<Todo[]> {
     const { id } = request.user;
     return this.todoService.findCreatedTodos(id, query);
   }
@@ -110,7 +121,10 @@ export class TodoController {
    * @returns
    */
   @Post('assigned')
-  async findAssignedTodos(@Request() request, @Body() query: QueryTodoDto): Promise<Todo[]> {
+  async findAssignedTodos(
+    @Request() request,
+    @Body() query: QueryTodoDto,
+  ): Promise<Todo[]> {
     const { id } = request.user;
     return this.todoService.findAssignedTodos(id, query);
   }
@@ -121,28 +135,29 @@ export class TodoController {
    * @returns
    */
   @Post('finished')
-  async findFinishedTodos(@Request() request, @Body() query: QueryTodoDto): Promise<Todo[]> {
+  async findFinishedTodos(
+    @Request() request,
+    @Body() query: QueryTodoDto,
+  ): Promise<Todo[]> {
     const { id } = request.user;
     return this.todoService.findFinishedTodos(id, query);
   }
 
-
   /**
    * 返回单个任务
-   * @param id 
-   * @returns 
+   * @param id
+   * @returns
    */
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Todo> {
     return this.todoService.findOne(id);
   }
 
-
   /**
    * 更新任务
-   * @param id 
-   * @param updateTodoDto 
-   * @returns 
+   * @param id
+   * @param updateTodoDto
+   * @returns
    */
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
@@ -152,26 +167,27 @@ export class TodoController {
 
   /**
    * 创建评论
-   * @param id 
-   * @param content 
-   * @returns 
+   * @param id
+   * @param content
+   * @returns
    */
-  @Post(":id/comment")
-  async createComment(@Param('id') id: string, @Body('content') content: string) {
-    return await this.todoService.createComment(id, content);
+  @Post(':id/comment')
+  async createComment(
+    @Request() request,
+    @Param('id') id: string,
+    @Body('content') content: string,
+  ) {
+    return await this.todoService.createComment(request, id, content);
   }
-
 
   /**
    * 删除任务
-   * @param id 
-   * @returns 
+   * @param id
+   * @returns
    */
   @Delete(':id')
   async remove(@Param('id') id: string) {
     await this.todoService.remove(id);
     return { id };
   }
-
-  
 }

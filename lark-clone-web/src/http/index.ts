@@ -1,6 +1,5 @@
 import axios from "axios"
 import {baseURL} from "../constants"
-// import { toast } from 'sonner'
 
 const http = axios.create({
   baseURL,
@@ -23,11 +22,17 @@ http.interceptors.request.use((config) => {
 
 http.interceptors.response.use((response) => {
   if (response.data.retcode !== 0) {
-    // toast(response.data.message);
+    alert(response.data.message);
   }
   return response.data;
 }, (error) => {
-  if (error.message.includes('401')) {
+  if (error.message.includes('Unauthorized')) {
+    window.location.replace('/login');
+  }
+  if (error.retcode === 401) {
+    //clear token
+    alert(error.message);
+    localStorage.clear();
     window.location.replace('/login');
   }
   return Promise.reject(error);

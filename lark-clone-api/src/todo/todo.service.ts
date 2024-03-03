@@ -18,22 +18,26 @@ export class TodoService {
     private userRepository: UserRepository,
   ) {}
 
-
   /**
    * 创建任务
-   * @param userId 
-   * @param createTodoDto 
-   * @returns 
+   * @param userId
+   * @param createTodoDto
+   * @returns
    */
-  async create(userId: number, createTodoDto: CreateTodoDto): Promise<Todo> {
+  async create(userId: string, createTodoDto: CreateTodoDto): Promise<Todo> {
     const user = await this.userRepository.findOne(userId);
-    const { title, description } = createTodoDto;
+    const { title, description, parentId } = createTodoDto;
 
     const todo = new Todo();
     todo.title = title;
     todo.description = description;
     todo.status = createTodoDto.status || TodoStatus.TODO;
     todo.createdBy = user;
+
+    if (parentId) {
+      const parent = await this.todoRepository.findOne(parentId);
+      todo.parent = parent;
+    }
 
     return this.todoRepository.save(todo);
   }
@@ -212,7 +216,10 @@ export class TodoService {
    * @param userId
    * @returns
    */
-  async findFinishedTodos(userId: string, query: QueryTodoDto): Promise<Todo[]> {
+  async findFinishedTodos(
+    userId: string,
+    query: QueryTodoDto,
+  ): Promise<Todo[]> {
     const { sortBy, order, startDate, endDate, assignee, createdBy } = query;
     const todo = await this.todoRepository
       .createQueryBuilder('todo')
@@ -228,7 +235,7 @@ export class TodoService {
   }
 
   async findOne(id: string): Promise<Todo> {
-    return this.todoRepository.findOne(id, {
+    const todo = await this.todoRepository.findOne(id, {
       where: { deletedAt: null },
       relations: [
         'createdBy',
@@ -239,8 +246,18 @@ export class TodoService {
         'children',
       ],
     });
+    //order todo comments by createdAt
+    todo.comments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return todo;
   }
 
+
+  /**
+   * 更新任务
+   * @param id 
+   * @param updateTodoDto 
+   * @returns 
+   */
   async update(id: string, updateTodoDto: UpdateTodoDto) {
     const { title, description, status, assignee } = updateTodoDto;
 
@@ -250,7 +267,16 @@ export class TodoService {
       assigneeUser = await this.userRepository.findOne(assignee);
     }
 
-    return this.todoRepository.update(id, {
+    const todo = await this.todoRepository.findOne(id, {
+      where: { deletedAt: null },
+    });
+
+
+    if (!todo) {
+      return;
+    }
+
+    const result = await this.todoRepository.update(id, {
       title,
       description,
       status: status || TodoStatus.TODO,
@@ -260,6 +286,32 @@ export class TodoService {
         : null,
       endDate: updateTodoDto.endDate ? new Date(updateTodoDto.endDate) : null,
     });
+
+    const parent = todo.parent;
+    if (!parent) {
+      return result;
+    }
+    const parentId = parent.id;
+
+    //check all childrens is done
+    const childrens = await this.todoRepository
+      .createQueryBuilder('todo')
+      .where('todo.parent = :id', { parentId })
+      .andWhere('todo.deletedAt IS NULL')
+      .getMany();
+
+    if (childrens.length > 0) {
+      const isAllDone = childrens.every(
+        (child) => child.status === TodoStatus.DONE,
+      );
+      if (isAllDone) {
+        await this.todoRepository.update(parentId, {
+          status: TodoStatus.DONE,
+        });
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -268,7 +320,7 @@ export class TodoService {
    * @param content
    * @returns
    */
-  async createComment(id: string, content: string) {
+  async createComment(requset, id: string, content: string) {
     const todo = await this.todoRepository.findOne(id, {
       where: { deletedAt: null },
     });
@@ -277,8 +329,10 @@ export class TodoService {
       return;
     }
 
+    const user = await this.userRepository.findOne(requset.user.id);
     const comment = new TodoComment();
     comment.content = content;
+    comment.createdBy = user;
     comment.todo = todo;
 
     return this.commentRepository.save(comment);

@@ -29,7 +29,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     const user = await authService.validateUser(username, password);
 
     if (!user) {
-      this.reportLogger.error('无法登录，SB');
+      this.reportLogger.error('无法登录');
       throw new UnauthorizedException();
     }
 

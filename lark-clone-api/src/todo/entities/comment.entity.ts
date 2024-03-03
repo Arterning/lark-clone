@@ -24,7 +24,9 @@ export class TodoComment {
   @ManyToOne(() => Todo, (todo) => todo.comments)
   todo: Todo;
 
-  @ManyToOne(() => User, (user) => user.comments)
+  @ManyToOne(() => User, (user) => user.comments, {
+    eager: true,
+  })
   createdBy: User;
 
   @CreateDateColumn({

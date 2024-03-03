@@ -18,6 +18,9 @@ export class CreateTodoDto {
   @IsOptional()
   assignee?: string; // 负责人
 
+  @IsString()
+  @IsOptional()
+  parentId?: string; // 父任务
 
   @IsOptional()
   @IsDate()

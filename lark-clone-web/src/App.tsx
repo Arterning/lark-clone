@@ -9,7 +9,8 @@ import Admin from "./pages/Admin";
 import AdminRoute from "./Components/AdminRoute";
 import HomePage from "./pages/Home";
 import UserProfilePage from "./pages/Profile";
-// import { Toaster } from "sonner";
+import Register from "./pages/Register";
+import toast, { Toaster } from 'react-hot-toast';
 
 const App: FC = () => {
   const auth = useAuth();
@@ -19,6 +20,7 @@ const App: FC = () => {
       {/* <Toaster /> */}
       <Router>
         <div>
+          <Toaster/>
           <Switch>
             <PrivateRoute exact path="/">
               <HomePage />
@@ -46,6 +48,9 @@ const App: FC = () => {
             </PrivateRoute>
             <Route path="/login">
               <Login />
+            </Route>
+            <Route path="/register">
+              <Register/>
             </Route>
             <AdminRoute path="/admin">
               <Admin />

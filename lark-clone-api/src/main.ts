@@ -59,7 +59,6 @@ async function bootstrap() {
 
   console.log('Server started at http://localhost:3001');
   console.log('Swagger started at http://localhost:3001/docs');
-  console.log('React started at http://localhost:3000');
 }
 
 bootstrap();
