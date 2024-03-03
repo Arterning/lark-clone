@@ -172,6 +172,7 @@ const Todo = (props: IProps) => {
           onClick={() => {
             submitTodo(newTodo);
           }}
+          disabled={!newTodo.title}
         >
           新增任务
         </Button>

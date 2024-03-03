@@ -14,6 +14,8 @@ import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { Todo } from './entities/todo.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { FollowTodoDto } from './dto/follow-todo.dto';
+import { User } from 'src/user/entities/user.entity';
 
 @ApiTags('待办事项')
 @ApiBearerAuth()
@@ -27,6 +29,21 @@ export class TodoController {
     @Body() createTodoDto: CreateTodoDto,
   ): Promise<Todo> {
     return this.todoService.create(request.user.id, createTodoDto);
+  }
+
+  /**
+   * 关注任务
+   * @param request 
+   * @param followTodoDto 
+   * @returns 
+   */
+  @Post('follow-todo')
+  async followTodo(
+    @Request() request,
+    @Body() followTodoDto: FollowTodoDto,
+  ): Promise<Todo> {
+    const { id } = request.user;
+    return this.todoService.followTodo(id, followTodoDto);
   }
 
   /**
@@ -115,8 +132,19 @@ export class TodoController {
     return updateTodoDto;
   }
 
+  /**
+   * 创建评论
+   * @param id 
+   * @param content 
+   * @returns 
+   */
+  @Post(":id/comment")
+  async createComment(@Param('id') id: string, @Body('content') content: string) {
+    return await this.todoService.createComment(id, content);
+  }
+
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: string) {
+  async remove(@Param('id') id: string) {
     await this.todoService.remove(id);
     return { id };
   }

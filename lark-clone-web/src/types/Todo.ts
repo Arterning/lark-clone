@@ -6,15 +6,24 @@ export enum TodoStatus {
 }
 
 export interface TodoItem {
-  id: number; // 自增 id
-  title: string; // 标题
+  id?: string; // 自增 id
+  title?: string; // 标题
   description?: string; // 具体内容
   status: TodoStatus; // 状态
-  startDate: Date;
-  endDate: Date;
-  createdBy: User; // 创建人
-  updatedBy: User; // 更新人
-  createdAt: Date; // 创建时间
-  updatedAt: Date; // 更新时间
-  deletedAt: Date;
+  startDate?: Date;
+  endDate?: Date;
+  assignee?: User; // 分配任务的用户
+  createdBy?: User; // 创建人
+  updatedBy?: User; // 更新人
+  createdAt?: Date; // 创建时间
+  updatedAt?: Date; // 更新时间
+  deletedAt?: Date;
+}
+
+export interface TodoComment {
+  id?: string; // 自增 id
+  content?: string; // 内容
+  createdBy?: User; // 创建人
+  createdAt?: Date; // 创建时间
+  updatedAt?: Date;
 }

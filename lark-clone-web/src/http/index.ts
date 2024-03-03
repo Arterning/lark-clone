@@ -1,5 +1,6 @@
 import axios from "axios"
 import {baseURL} from "../constants"
+// import { toast } from 'sonner'
 
 const http = axios.create({
   baseURL,
@@ -22,7 +23,7 @@ http.interceptors.request.use((config) => {
 
 http.interceptors.response.use((response) => {
   if (response.data.retcode !== 0) {
-    alert(response.data.message);
+    // toast(response.data.message);
   }
   return response.data;
 }, (error) => {

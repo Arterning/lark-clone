@@ -2,6 +2,7 @@ import * as React from 'react';
 import { FC, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import AuthContext from '../../contexts/AuthContext';
+import { Button } from 'antd';
 
 interface Props {
 }
@@ -15,17 +16,13 @@ const AuthButton: FC<Props> = () => {
   }
 
   return (
-    <div style={{
-      marginLeft: "auto",
-      paddingRight: "80px"
-    }}>
-      Welcome!{' '} {userInfo?.username} {' '}
-      <button onClick={async () => {
+    <div>
+      <Button onClick={async () => {
         await logout();
         history.push('/');
       }}>
         登出
-      </button>
+      </Button>
     </div>
   );
 };

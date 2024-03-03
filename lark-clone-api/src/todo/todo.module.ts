@@ -5,10 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from '../user/user.module';
 import { UserRepository } from '../db/repositories/UserRepository';
 import { TodoRepository } from '../db/repositories/TodoRepository';
+import { TodoCommentRepository } from 'src/db/repositories/TodoCommentRepository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TodoRepository, UserRepository]),
+    TypeOrmModule.forFeature([TodoRepository, TodoCommentRepository,  UserRepository]),
     UserModule,
   ],
   controllers: [TodoController],

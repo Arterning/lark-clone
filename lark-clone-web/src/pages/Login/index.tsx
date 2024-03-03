@@ -2,6 +2,7 @@ import * as React from "react"
 import {FC, useContext, useState} from "react"
 import {useHistory} from "react-router-dom"
 import authContext from "../../contexts/AuthContext"
+import { Button, Input } from "antd"
 
 const Login: FC = () => {
   const history = useHistory();
@@ -46,7 +47,7 @@ const Login: FC = () => {
         padding: '12px',
       }}>
         <label htmlFor="username">
-          <input
+          <Input
             value={authForm.username}
             placeholder="请输入用户名"
             onChange={(e) => setAuthForm({...authForm, username: e.target.value})}
@@ -58,7 +59,7 @@ const Login: FC = () => {
         padding: '12px',
       }}>
         <label htmlFor="password">
-          <input
+          <Input
             value={authForm.password}
             placeholder="请输入密码"
             onChange={(e) => setAuthForm({...authForm, password: e.target.value})}
@@ -66,7 +67,7 @@ const Login: FC = () => {
           />
         </label>
       </div>
-      <button onClick={login}>登录</button>
+      <Button onClick={login}>登录</Button>
     </div>
   );
 }

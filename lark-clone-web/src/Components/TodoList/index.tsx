@@ -17,7 +17,6 @@ const TodoList: FC<Props> = (props: Props) => {
   return (
     <div className="todo-list">
       {todoList
-        .sort((a, b) => b.id - a.id)
         .map((todo) => (
           <div key={todo.id}>
             <TodoCard

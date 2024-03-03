@@ -33,7 +33,6 @@ const Admin: FC = () => {
               <td>{user.id}</td>
               <td>{user.username}</td>
               <td>{user.email}</td>
-              <td>{user.password || '-'}</td>
               <td>{user.is_admin === 1 ? '是' : '否'}</td>
             </tr>
           ))}

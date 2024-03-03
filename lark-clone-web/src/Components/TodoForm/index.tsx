@@ -11,7 +11,6 @@ interface Props {
 const defaultTodo: Omit<TodoItem, 'id'> = {
   title: '',
   description: '',
-  media: '',
   status: 0,
 }
 
@@ -25,15 +24,6 @@ const TodoForm: FC<Props> = (props) => {
     setNewTodo(todo || defaultTodo);
   }, [todo])
 
-  const onUploadChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-
-    const formData = new FormData();
-    formData.set('file', e.target.files[0]);
-    const response = await http.post('/upload/file', formData);
-
-    setNewTodo({...newTodo, media: response.data.file})
-  }
 
   const resetForm = () => {
     setNewTodo(defaultTodo);

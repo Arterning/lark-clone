@@ -4,6 +4,7 @@ import { Button, Checkbox, Dropdown, Space } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { TodoItem } from '../../types/Todo';
+import http from '../../http';
 
 const items: MenuProps['items'] = [
   {
@@ -31,7 +32,19 @@ const TodoCard = (props: IProps) => {
     e.stopPropagation();
   }
 
+  const handleDeleteTodo = async () => {
+    await http.delete(`/todo/${data.id}`);
+  }
+
   const handleMenuClick: MenuProps['onClick'] = async (e) => {
+
+    if (e.key === '1') {
+      onHistory?.(data);
+    }
+
+    if (e.key === '2') {
+      handleDeleteTodo();
+    }
     
   };
 

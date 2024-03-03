@@ -1,5 +1,7 @@
 import { TodoStatus } from '../entities/todo.entity';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+
 
 export class CreateTodoDto {
   @IsString()
@@ -14,5 +16,17 @@ export class CreateTodoDto {
 
   @IsString()
   @IsOptional()
-  media?: string;
+  assignee?: string; // 负责人
+
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  startDate?: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  endDate?: Date;
+
 }
