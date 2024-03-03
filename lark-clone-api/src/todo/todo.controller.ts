@@ -107,7 +107,7 @@ export class TodoController {
   @Get('assigned')
   async findAssignedTodos(@Request() request): Promise<Todo[]> {
     const { id } = request.user;
-    return this.todoService.findAllByUserId(id);
+    return this.todoService.findAssignedTodosByUserId(id);
   }
 
   /**

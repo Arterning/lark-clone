@@ -110,6 +110,17 @@ export class TodoService {
     return user ? user.createTodos : [];
   }
 
+  async findAssignedTodosByUserId(userId: number): Promise<Todo[]> {
+    const todo = await this.todoRepository
+      .createQueryBuilder('todo')
+      .where('todo.createdBy = :createdBy', { createdBy: userId })
+      .where('todo.deletedAt IS NULL')
+      .where('todo.assignee IS NOT NULL')
+      .getMany();
+
+    return todo;
+  }
+
   async findFollowingTodos(userId: number): Promise<Todo[]> {
     const user = await this.userRepository.findOne({
       relations: ['followingTodos'],
@@ -133,13 +144,19 @@ export class TodoService {
   }
 
   async update(id: string, updateTodoDto: UpdateTodoDto) {
-    const { title, description, status } = updateTodoDto;
+    const { title, description, status, assignee } = updateTodoDto;
+
+    let assigneeUser: User = null;
+
+    if (assignee) {
+      assigneeUser = await this.userRepository.findOne(assignee);
+    }
 
     return this.todoRepository.update(id, {
       title,
       description,
       status: status || TodoStatus.TODO,
-      assignee: updateTodoDto.assignee ? { id: updateTodoDto.assignee } : null,
+      assignee: assigneeUser,
       startDate: updateTodoDto.startDate
         ? new Date(updateTodoDto.startDate)
         : null,

@@ -54,7 +54,7 @@ const TodoDrawer = (props: IProps) => {
   const handleFinishTodo = async () => {
     await http.patch(`/todo/${todoDetail?.id}`, {
       ...editTodo,
-      finished: true,
+      status: TodoStatus.DONE,
     });
   };
 
@@ -69,6 +69,7 @@ const TodoDrawer = (props: IProps) => {
       ...editTodo,
       startDate: formattedStartDate,
       endDate: formattedEndDate,
+      assignee: editTodo.assignee?.id,
     });
   };
 
