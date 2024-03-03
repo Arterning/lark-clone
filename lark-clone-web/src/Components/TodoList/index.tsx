@@ -1,18 +1,26 @@
 import React, { FC, useState } from "react";
-import { TodoItem } from "../../types/Todo";
+import { TodoItem, TodoStatus } from "../../types/Todo";
 import TodoCard from "../TodoCard";
 import TodoDrawer from "../TodoDrawer";
+import { User } from "../../types/User";
 
 interface Props {
   todoList: TodoItem[];
+  users: User[];
   onDelete: (id: number) => void;
   onEdit: (todo: TodoItem) => void;
 }
 
+const defaultTodo: Omit<TodoItem, "id"> = {
+  title: "",
+  description: "",
+  status: TodoStatus.TODO,
+};
+
 const TodoList: FC<Props> = (props: Props) => {
-  const { todoList } = props;
+  const { todoList, users } = props;
   const [visible, setVisible] = useState<boolean>(false);
-  const [detail, setDetail] = useState<TodoItem>();
+  const [detail, setDetail] = useState<TodoItem>(defaultTodo);
 
   return (
     <div className="todo-list">
@@ -32,6 +40,7 @@ const TodoList: FC<Props> = (props: Props) => {
         visible={visible}
         onClose={() => setVisible(false)}
         todoDetail={detail}
+        users={users}
       />
     </div>
   );

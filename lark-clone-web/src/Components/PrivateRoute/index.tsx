@@ -24,9 +24,7 @@ const PrivateRoute: FC<Props> = (props) => {
     }
 
     return (
-      <div style={{
-        padding: '10px',
-      }}>
+      <div>
         <NavBar/>
         <SideBar/>
         <div className="main">

@@ -13,6 +13,7 @@ import {
 import TodoList from "../../Components/TodoList";
 import { Skeleton } from "antd";
 import { Dayjs } from "dayjs";
+import { User } from "../../types/User";
 
 interface IProps {
   todoType?:
@@ -24,15 +25,14 @@ interface IProps {
     | "finished";
 }
 
-interface FilterCondition {
-  createTimeStart?: number;
-  createTimeEnd?: number;
-  creatorId?: string;
-}
 
-interface SortCondition {
-  field: string;
-  direction: "ASC" | "DESC";
+interface QueryTodoDto {
+  sortBy?: string;
+  order?: "ASC" | "DESC";
+  startDate?: Date;
+  endDate?: Date;
+  createdBy?: string;
+  assignee?: string;
 }
 
 type RangeValue = [Dayjs | null, Dayjs | null] | null;
@@ -50,39 +50,43 @@ const sortMenu: MenuProps["items"] = [
     key: "3",
     label: <a>按创建者</a>,
   },
+  {
+    key: "4",
+    label: <a>按ID</a>,
+  },
 ];
 
 const Todo = (props: IProps) => {
   const { todoType = "all" } = props;
   const [loading, setLoading] = useState<boolean>(false);
   const [todos, setTodos] = useState<TodoItem[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [newTodo, setNewTodo] = useState<Partial<TodoItem>>({
     title: "",
     status: TodoStatus.TODO,
   });
-  const [filterCondition, setFilterCondition] = useState<FilterCondition>({
-    createTimeStart: 0,
-    createTimeEnd: 0,
-    creatorId: "",
-  });
-  const [sortCondition, setSortCondition] = useState<SortCondition>({
-    field: "createTime",
-    direction: "DESC",
-  });
+ 
+  const [query, setQuery] = useState<QueryTodoDto>();
+
+  const fetchUserList = async () => {
+    const { data } = await http.get<User[]>("/user");
+    setUsers(data);
+    return data;
+  };
 
   const fetchTodos = useCallback(async () => {
     setLoading(true);
-    const sort = sortCondition.field;
-    const { data } = await http.get<TodoItem[]>(
-      `/todo/${todoType}?sort=${sort}`
+    const { data } = await http.post<TodoItem[]>(
+      `/todo/${todoType}`, query
     );
     setTodos(data);
     setLoading(false);
-  }, [todoType, sortCondition]);
+  }, [todoType, query]);
 
   useEffect(() => {
     fetchTodos().then();
-  }, [fetchTodos, todoType, sortCondition]);
+    fetchUserList().then();
+  }, [fetchTodos, query]);
 
   const submitTodo = async (newTodo: Partial<TodoItem>) => {
     setLoading(true);
@@ -112,24 +116,24 @@ const Todo = (props: IProps) => {
     if (dates?.[0] && dates?.[1]) {
       const startDateStr = dates[0].format("YYYY-MM-DD");
       const endDateStr = dates[1].format("YYYY-MM-DD");
-      setFilterCondition({
-        ...filterCondition,
-        createTimeStart: new Date(`${startDateStr} 00:00:00`).getTime(),
-        createTimeEnd: new Date(`${endDateStr} 23:59:59`).getTime(),
+      setQuery({
+        ...query,
+        startDate: new Date(startDateStr),
+        endDate: new Date(endDateStr),
       });
     } else {
-      setFilterCondition({
-        ...filterCondition,
-        createTimeStart: 0,
-        createTimeEnd: 0,
+      setQuery({
+        ...query,
+        startDate: undefined,
+        endDate: undefined,
       });
     }
   };
 
-  const handleSelectCreator = (creatorId: string) => {
-    setFilterCondition({
-      ...filterCondition,
-      creatorId,
+  const handleSelectCreator = (createdBy: string) => {
+    setQuery({
+      ...query,
+      createdBy,
     });
   };
 
@@ -137,20 +141,29 @@ const Todo = (props: IProps) => {
     e.domEvent.stopPropagation();
     const { key } = e;
     if (key === "1") {
-      setSortCondition({
-        field: "createTime",
-        direction: "DESC",
-      });
+      setQuery({
+        ...query,
+        sortBy: "createdAt",
+        order: "DESC",
+      })
     } else if (key === "2") {
-      setSortCondition({
-        field: "planFinishTime",
-        direction: "DESC",
-      });
+      setQuery({
+        ...query,
+        sortBy: "endDate",
+        order: "DESC",
+      })
     } else if (key === "3") {
-      setSortCondition({
-        field: "creatorId",
-        direction: "DESC",
-      });
+      setQuery({
+        ...query,
+        sortBy: "createdBy",
+        order: "DESC",
+      })
+    } else {
+      setQuery({
+        ...query,
+        sortBy: "id",
+        order: "DESC",
+      })
     }
   };
 
@@ -180,31 +193,37 @@ const Todo = (props: IProps) => {
 
       <div className="todo-list-filter">
         <Space>
-          <span>创建时间</span>
+          <span>创建时间段</span>
           <DatePicker.RangePicker onChange={handleTimeRange} />
-          <span>创建者</span>
+          <span>创建人</span>
           <Select
             style={{ width: 120 }}
-            value={filterCondition.creatorId}
-            options={[
-              {
-                id: "234234234",
-                name: "全部",
-              },
-            ].map((user) => ({
+            value={query?.createdBy}
+            options={users.map((user) => ({
               value: user.id,
-              label: user.name,
+              label: user.username,
             }))}
             allowClear
             onChange={handleSelectCreator}
           />
-          <Button onClick={fetchTodos}>查询</Button>
+          <span>任务人</span>
+          <Select
+            style={{ width: 120 }}
+            value={query?.assignee}
+            options={users.map((user) => ({
+              value: user.id,
+              label: user.username,
+            }))}
+            allowClear
+            onChange={handleSelectCreator}
+          />
           <Dropdown
             menu={{ items: sortMenu, onClick: handleSort }}
             placement="bottomRight"
           >
             <Button>排序</Button>
           </Dropdown>
+          <Button onClick={fetchTodos}>查询</Button>
         </Space>
       </div>
 
@@ -215,6 +234,7 @@ const Todo = (props: IProps) => {
           todoList={todos}
           onDelete={deleteTodo}
           onEdit={(todo) => {}}
+          users={users}
         />
       )}
     </div>

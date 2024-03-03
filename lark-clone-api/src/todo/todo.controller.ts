@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  ParseIntPipe,
   Request,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
@@ -15,7 +14,7 @@ import { UpdateTodoDto } from './dto/update-todo.dto';
 import { Todo } from './entities/todo.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FollowTodoDto } from './dto/follow-todo.dto';
-import { User } from 'src/user/entities/user.entity';
+import { QueryTodoDto } from './dto/query-todo.dto';
 
 @ApiTags('待办事项')
 @ApiBearerAuth()
@@ -23,6 +22,12 @@ import { User } from 'src/user/entities/user.entity';
 export class TodoController {
   constructor(private readonly todoService: TodoService) {}
 
+  /**
+   * 创建任务
+   * @param request 
+   * @param createTodoDto 
+   * @returns 
+   */
   @Post()
   async create(
     @Request() request,
@@ -61,10 +66,10 @@ export class TodoController {
    * @param request
    * @returns
    */
-  @Get('owned')
-  async findOwnedTodos(@Request() request): Promise<Todo[]> {
+  @Post('owned')
+  async findOwnedTodos(@Request() request, @Body() query: QueryTodoDto): Promise<Todo[]> {
     const { id } = request.user;
-    return this.todoService.findAssignedTodos(id);
+    return this.todoService.findOwnedTodos(id, query);
   }
 
   /**
@@ -72,10 +77,10 @@ export class TodoController {
    * @param request
    * @returns
    */
-  @Get('following')
-  async findFollowingTodos(@Request() request): Promise<Todo[]> {
+  @Post('following')
+  async findFollowingTodos(@Request() request, @Body() query: QueryTodoDto): Promise<Todo[]> {
     const { id } = request.user;
-    return this.todoService.findFollowingTodos(id);
+    return this.todoService.findFollowingTodos(id, query);
   }
 
   /**
@@ -83,9 +88,9 @@ export class TodoController {
    * @param request
    * @returns
    */
-  @Get('all')
-  async findAllTodos(): Promise<Todo[]> {
-    return this.todoService.findAll();
+  @Post('all')
+  async findAllTodos(@Body() query: QueryTodoDto): Promise<Todo[]> {
+    return this.todoService.findAllTodos(query);
   }
 
   /**
@@ -93,10 +98,10 @@ export class TodoController {
    * @param request
    * @returns
    */
-  @Get('created')
-  async findCreatedTodos(@Request() request): Promise<Todo[]> {
+  @Post('created')
+  async findCreatedTodos(@Request() request, @Body() query: QueryTodoDto): Promise<Todo[]> {
     const { id } = request.user;
-    return this.todoService.findAllByUserId(id);
+    return this.todoService.findCreatedTodos(id, query);
   }
 
   /**
@@ -104,10 +109,10 @@ export class TodoController {
    * @param request
    * @returns
    */
-  @Get('assigned')
-  async findAssignedTodos(@Request() request): Promise<Todo[]> {
+  @Post('assigned')
+  async findAssignedTodos(@Request() request, @Body() query: QueryTodoDto): Promise<Todo[]> {
     const { id } = request.user;
-    return this.todoService.findAssignedTodosByUserId(id);
+    return this.todoService.findAssignedTodos(id, query);
   }
 
   /**
@@ -115,17 +120,30 @@ export class TodoController {
    * @param request
    * @returns
    */
-  @Get('finished')
-  async findFinishedTodos(@Request() request): Promise<Todo[]> {
+  @Post('finished')
+  async findFinishedTodos(@Request() request, @Body() query: QueryTodoDto): Promise<Todo[]> {
     const { id } = request.user;
-    return this.todoService.findFinishedTodos(id);
+    return this.todoService.findFinishedTodos(id, query);
   }
 
+
+  /**
+   * 返回单个任务
+   * @param id 
+   * @returns 
+   */
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Todo> {
     return this.todoService.findOne(id);
   }
 
+
+  /**
+   * 更新任务
+   * @param id 
+   * @param updateTodoDto 
+   * @returns 
+   */
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
     await this.todoService.update(id, updateTodoDto);
@@ -143,9 +161,17 @@ export class TodoController {
     return await this.todoService.createComment(id, content);
   }
 
+
+  /**
+   * 删除任务
+   * @param id 
+   * @returns 
+   */
   @Delete(':id')
   async remove(@Param('id') id: string) {
     await this.todoService.remove(id);
     return { id };
   }
+
+  
 }

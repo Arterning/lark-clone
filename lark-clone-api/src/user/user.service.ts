@@ -21,11 +21,12 @@ export class UserService {
   }
 
   async findAll() {
-    return this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.todos', 'todos')
-      .getMany();
-    //return this.userRepository.find();
+    // const users = await this.userRepository
+    //   .createQueryBuilder('user')
+    //   .leftJoinAndSelect('user.createTodos', 'todos')
+    //   .getMany();
+    // return users;
+    return this.userRepository.find();
   }
 
   async findOne(id: string) {

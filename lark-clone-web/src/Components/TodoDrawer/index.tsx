@@ -9,24 +9,21 @@ import {
   CommentOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { User } from "../../types/User";
 // import { toast } from 'sonner'
 
 interface IProps {
   todoDetail: TodoItem;
+  users: User[];
   visible: boolean;
   onClose?: () => void;
 }
 
-const defaultTodo: Omit<TodoItem, "id"> = {
-  title: "",
-  description: "",
-  status: TodoStatus.TODO,
-};
 
 const TodoDrawer = (props: IProps) => {
-  const { visible, onClose, todoDetail } = props;
+  const { visible, onClose, todoDetail, users } = props;
 
-  const [editTodo, setEditTodo] = useState<TodoItem>(todoDetail || defaultTodo);
+  const [editTodo, setEditTodo] = useState<TodoItem>(todoDetail);
   const [comment, setComment] = useState<string>("");
 
   const [commentHistory, setCommentHistory] = useState<TodoComment[]>([]);
@@ -106,14 +103,9 @@ const TodoDrawer = (props: IProps) => {
             style={{ width: 120 }}
             value={editTodo?.assignee?.id}
             placeholder="添加负责人"
-            options={[
-              {
-                id: "1",
-                name: "admin",
-              },
-            ].map((user) => ({
+            options={users.map((user) => ({
               value: user.id,
-              label: user.name,
+              label: user.username,
             }))}
             allowClear
             onChange={handleSelectAssignee}
