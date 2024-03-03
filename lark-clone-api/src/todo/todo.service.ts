@@ -339,6 +339,13 @@ export class TodoService {
   }
 
   async remove(id: string) {
+    //remove all children todos
+    await this.todoRepository
+      .createQueryBuilder('todo')
+      .update(Todo)
+      .set({ deletedAt: new Date() })
+      .where('todo.parent = :id', { id })
+      .execute();
     return this.todoRepository.update(id, { deletedAt: new Date() });
   }
 }

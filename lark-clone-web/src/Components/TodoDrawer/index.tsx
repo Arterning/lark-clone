@@ -56,6 +56,7 @@ const TodoDrawer = (props: IProps) => {
     } catch (error) {
       toast.error("操作失败");
     }
+    window.location.reload();
   };
 
   const handleFollowTodo = async () => {
@@ -129,6 +130,19 @@ const TodoDrawer = (props: IProps) => {
     });
   };
 
+  const handleDeleteTodo = async () => {
+    if (!editTodo?.id) return;
+    try {
+      await http.delete(`/todo/${editTodo.id}`);
+      toast.success("操作成功");
+    } catch (error) {
+      toast.error("操作失败");
+    }
+    onClose?.();
+
+    window.location.reload();
+  };
+
   return (
     <Drawer title="Todo Drawer" onClose={onClose} open={visible} width="46%">
       <Flex gap="middle" vertical>
@@ -175,6 +189,7 @@ const TodoDrawer = (props: IProps) => {
           <Button onClick={handleFollowTodo}>关注</Button>
           <Button onClick={handleFinishTodo}>完成任务</Button>
           <Button onClick={handleOnSave}>提交</Button>
+          <Button onClick={handleDeleteTodo}>删除</Button>
         </Space>
       </Flex>
 
