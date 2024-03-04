@@ -205,12 +205,36 @@ export class TodoService {
         'assignee',
         'follower',
         'comments',
-        'parent',
         'children',
       ],
     });
-    //order todo comments by createdAt
-    todo.comments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+   
+    //get comment ids
+    const comments = todo.comments;
+    if (comments) {
+      const commentIds = comments.map((comment) => comment.id);
+      const todoComments = await this.commentRepository.findByIds(commentIds, {
+        where: { deletedAt: null },
+        relations: ['createdBy'],
+        order: { createdAt: 'DESC' },
+      });
+      todo.comments = todoComments;
+    }
+
+
+    //get children ids
+    const children = todo.children;
+    if (children) {
+      const childrenIds = children.map((child) => child.id);
+
+      const todoChildren = await this.todoRepository.findByIds(childrenIds, {
+        where: { deletedAt: null },
+        relations: ['createdBy'],
+        order: { createdAt: 'DESC' },
+      });
+      todo.children = todoChildren;
+    }
+
     return todo;
   }
 
