@@ -21,7 +21,7 @@ const TodoCard = (props: IProps) => {
           <div className='info'>
             <Space>
               <span className='info-sub'>
-                { data.createdBy && data.createdBy.username} 创建于 {dayjs(data.createdAt).format('MM-DD') }
+                { data.createdBy && data.createdBy.username} 创建于 {dayjs(data.createdAt).format('MM-DD HH:mm') }
               </span>
               <span>{data.startDate? dayjs(data.startDate).format('YYYY-MM-DD') : ''}</span>
               <span>{data.startDate? '至' : ''}</span>

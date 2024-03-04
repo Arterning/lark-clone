@@ -109,16 +109,25 @@ export class TodoService {
    */
   async findOwnedTodos(userId: string, query: QueryTodoDto): Promise<Todo[]> {
     const { sortBy, order, startDate, endDate, assignee, createdBy } = query;
-    const todo = await this.todoRepository
+    console.log('query condition', query);
+    const qb = this.todoRepository
       .createQueryBuilder('todo')
-      .where('todo.createdBy = :createdBy', { createdBy: createdBy })
-      .where('todo.startDate >= :startDate', { startDate })
-      .where('todo.endDate <= :endDate', { endDate })
       .where('todo.deletedAt IS NULL')
-      .where('todo.assignee = :assignee', { assignee: assignee || userId })
-      .orderBy(sortBy, order)
-      .getMany();
-    return todo;
+      .andWhere('todo.assignee = :assignee', { assignee: assignee || userId })
+      .orderBy(sortBy, order);
+
+    if (createdBy) {
+      qb.andWhere('todo.createdBy = :createdBy', { createdBy: createdBy });
+    }
+
+    if (startDate) {
+      qb.andWhere('todo.createdAt >= :startDate', { startDate: startDate });
+    }
+
+    if (endDate) {
+      qb.andWhere('todo.createdAt <= :endDate', { endDate: endDate });
+    }
+    return qb.getMany();
   }
 
   /**
@@ -136,7 +145,32 @@ export class TodoService {
       relations: ['followingTodos'],
       where: { id: userId },
     });
-    return user ? user.followingTodos.filter((todo) => !todo.deletedAt) : [];
+
+    const followingTodos = user.followingTodos;
+    const qb = this.todoRepository
+      .createQueryBuilder('todo')
+      .where('todo.id IN (:...ids)', {
+        ids: followingTodos.map((todo) => todo.id),
+      })
+      .where('todo.deletedAt IS NULL')
+      .orderBy(sortBy, order);
+
+    if (createdBy) {
+      qb.andWhere('todo.createdBy = :createdBy', { createdBy: createdBy });
+    }
+
+    if (assignee) {
+      qb.andWhere('todo.assignee = :assignee', { assignee: assignee });
+    }
+
+    if (startDate) {
+      qb.andWhere('todo.createdAt >= :startDate', { startDate: startDate });
+    }
+
+    if (endDate) {
+      qb.andWhere('todo.createdAt <= :endDate', { endDate: endDate });
+    }
+    return qb.getMany();
   }
 
   /**
@@ -145,17 +179,8 @@ export class TodoService {
    * @returns
    */
   async findAllTodos(query: QueryTodoDto): Promise<Todo[]> {
-    const { sortBy, order, startDate, endDate, assignee, createdBy } = query;
-    const todo = await this.todoRepository
-      .createQueryBuilder('todo')
-      .where('todo.startDate >= :startDate', { startDate })
-      .where('todo.endDate <= :endDate', { endDate })
-      .where('todo.assignee = :assignee', { assignee: assignee })
-      .where('todo.createdBy = :createdBy', { createdBy: createdBy })
-      .where('todo.deletedAt IS NULL')
-      .orderBy(sortBy, order)
-      .getMany();
-    return todo;
+    const qb = this.buildQuery(query);
+    return qb.getMany();
   }
 
   /**
@@ -164,17 +189,11 @@ export class TodoService {
    * @returns
    */
   async findCreatedTodos(userId: string, query: QueryTodoDto): Promise<Todo[]> {
-    const { sortBy, order, startDate, endDate, assignee, createdBy } = query;
-    const todo = await this.todoRepository
-      .createQueryBuilder('todo')
-      .where('todo.startDate >= :startDate', { startDate })
-      .where('todo.endDate <= :endDate', { endDate })
-      .where('todo.assignee = :assignee', { assignee: assignee })
-      .where('todo.createdBy = :createdBy', { createdBy: createdBy || userId })
-      .where('todo.deletedAt IS NULL')
-      .orderBy(sortBy, order)
-      .getMany();
-    return todo;
+    const qb = this.buildQuery({
+      ...query,
+      createdBy: query.createdBy || userId,
+    });
+    return qb.getMany();
   }
 
   /**
@@ -186,29 +205,11 @@ export class TodoService {
     userId: string,
     query: QueryTodoDto,
   ): Promise<Todo[]> {
-    const { sortBy, order, startDate, endDate, assignee, createdBy } = query;
-    if (assignee) {
-      return await this.todoRepository
-        .createQueryBuilder('todo')
-        .where('todo.startDate >= :startDate', { startDate })
-        .where('todo.endDate <= :endDate', { endDate })
-        .where('todo.createdBy = :createdBy', {
-          createdBy: createdBy || userId,
-        })
-        .where('todo.deletedAt IS NULL')
-        .where('todo.assignee = :assignee', { assignee: assignee })
-        .orderBy(sortBy, order)
-        .getMany();
+    const qb = this.buildQuery(query);
+    if (!query.assignee) {
+      qb.andWhere('todo.assignee IS NULL');
     }
-    return await this.todoRepository
-      .createQueryBuilder('todo')
-      .where('todo.startDate >= :startDate', { startDate })
-      .where('todo.endDate <= :endDate', { endDate })
-      .where('todo.createdBy = :createdBy', { createdBy: createdBy || userId })
-      .where('todo.deletedAt IS NULL')
-      .where('todo.assignee IS NOT NULL')
-      .orderBy(sortBy, order)
-      .getMany();
+    return qb.getMany();
   }
 
   /**
@@ -220,18 +221,9 @@ export class TodoService {
     userId: string,
     query: QueryTodoDto,
   ): Promise<Todo[]> {
-    const { sortBy, order, startDate, endDate, assignee, createdBy } = query;
-    const todo = await this.todoRepository
-      .createQueryBuilder('todo')
-      .where('todo.startDate >= :startDate', { startDate })
-      .where('todo.endDate <= :endDate', { endDate })
-      .where('todo.assignee = :assignee', { assignee: assignee })
-      .where('todo.createdBy = :createdBy', { createdBy: createdBy })
-      .where('todo.status = :status', { status: TodoStatus.DONE })
-      .where('todo.deletedAt IS NULL')
-      .orderBy(sortBy, order)
-      .getMany();
-    return todo;
+    const qb = this.buildQuery(query);
+    qb.andWhere('todo.status = :status', { status: TodoStatus.DONE });
+    return qb.getMany();
   }
 
   async findOne(id: string): Promise<Todo> {
@@ -251,12 +243,11 @@ export class TodoService {
     return todo;
   }
 
-
   /**
    * 更新任务
-   * @param id 
-   * @param updateTodoDto 
-   * @returns 
+   * @param id
+   * @param updateTodoDto
+   * @returns
    */
   async update(id: string, updateTodoDto: UpdateTodoDto) {
     const { title, description, status, assignee } = updateTodoDto;
@@ -270,7 +261,6 @@ export class TodoService {
     const todo = await this.todoRepository.findOne(id, {
       where: { deletedAt: null },
     });
-
 
     if (!todo) {
       return;
@@ -348,4 +338,28 @@ export class TodoService {
       .execute();
     return this.todoRepository.update(id, { deletedAt: new Date() });
   }
+
+  buildQuery = (query: QueryTodoDto) => {
+    const { sortBy, order, startDate, endDate, assignee, createdBy } = query;
+    const qb = this.todoRepository
+      .createQueryBuilder('todo')
+      .where('todo.deletedAt IS NULL');
+    if (createdBy) {
+      qb.andWhere('todo.createdBy = :createdBy', { createdBy: createdBy });
+    }
+
+    if (assignee) {
+      qb.andWhere('todo.assignee = :assignee', { assignee: assignee });
+    }
+
+    if (startDate) {
+      qb.andWhere('todo.createdAt >= :startDate', { startDate: startDate });
+    }
+
+    if (endDate) {
+      qb.andWhere('todo.createdAt <= :endDate', { endDate: endDate });
+    }
+    qb.orderBy(sortBy, order);
+    return qb;
+  };
 }

@@ -68,7 +68,6 @@ const TodoDrawer = (props: IProps) => {
     } catch (error) {
       toast.error("操作失败");
     }
-    window.location.reload();
   };
 
   const handleFollowTodo = async () => {

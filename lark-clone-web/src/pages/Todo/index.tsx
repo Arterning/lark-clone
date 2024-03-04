@@ -137,6 +137,13 @@ const Todo = (props: IProps) => {
     });
   };
 
+  const handleSelectAssignee = (assignee: string) => {
+    setQuery({
+      ...query,
+      assignee,
+    });
+  };
+
   const handleSort: MenuProps["onClick"] = (e) => {
     e.domEvent.stopPropagation();
     const { key } = e;
@@ -215,7 +222,7 @@ const Todo = (props: IProps) => {
               label: user.username,
             }))}
             allowClear
-            onChange={handleSelectCreator}
+            onChange={handleSelectAssignee}
           />
           <Dropdown
             menu={{ items: sortMenu, onClick: handleSort }}
