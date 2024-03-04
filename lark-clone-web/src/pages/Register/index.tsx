@@ -2,6 +2,7 @@ import { FC, useState } from "react";
 import { Button, Flex, Input, Space } from "antd";
 import { useHistory } from "react-router-dom";
 import http from "../../http";
+import toast from "react-hot-toast";
 
 const Register: FC = () => {
   const history = useHistory();
@@ -12,8 +13,13 @@ const Register: FC = () => {
   });
 
   const register = async () => {
-    await http.post("/user", registerForm);
-    history.push("/login");
+    try {
+      await http.post("/user", registerForm);
+      toast.success("注册成功");
+      history.push("/login");
+    } catch (error) {
+      toast.error("注册失败");
+    }
   };
 
   return (
@@ -46,12 +52,12 @@ const Register: FC = () => {
           onChange={(e) =>
             setRegisterForm({ ...registerForm, password: e.target.value })
           }
-          type="text"
+          type="password"
         />
       </div>
 
       <Space>
-        <Button onClick={register}>注册</Button>
+        <Button onClick={register} disabled={!registerForm.username && !registerForm.password}>注册</Button>
       </Space>
     </div>
   );

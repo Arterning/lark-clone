@@ -28,11 +28,11 @@ export class User {
   password: string;
 
   @ApiProperty({ description: '邮箱' })
-  @Column({ length: 500 })
-  email: string;
+  @Column({ length: 500, default: '' })
+  email?: string;
 
   @ApiProperty({ description: '是否为管理员' })
-  @Column('int', { default: 1 })
+  @Column('int', { default: 0 })
   is_admin?: number;
 
   @OneToMany(() => Todo, (todo) => todo.createdBy, { cascade: true })
