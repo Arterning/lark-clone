@@ -10,6 +10,7 @@ import { User } from '../src/user/entities/user.entity';
 import { Todo } from '../src/todo/entities/todo.entity';
 import { AppModule } from '../src/app.module';
 import { AppService } from '../src/app.service';
+import { TodoComment } from '../src/comment/entities/comment.entity';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -19,7 +20,7 @@ describe('AppController (e2e)', () => {
     database: 'nest_todo',
     username: 'root',
     password: '123456',
-    entities: [User, Todo],
+    entities: [User, Todo, TodoComment],
   });
 
   beforeEach(async () => {

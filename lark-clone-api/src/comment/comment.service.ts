@@ -3,8 +3,8 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { TodoCommentRepository } from '../db/repositories/TodoCommentRepository';
 import { TodoComment } from './entities/comment.entity';
-import { User } from 'src/user/entities/user.entity';
-import { TodoRepository } from 'src/db/repositories/TodoRepository';
+import { User } from '../user/entities/user.entity';
+import { TodoRepository } from '../db/repositories/TodoRepository';
 
 @Injectable()
 export class CommentService {

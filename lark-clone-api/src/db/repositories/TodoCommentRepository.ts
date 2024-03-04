@@ -1,4 +1,4 @@
-import { TodoComment } from 'src/comment/entities/comment.entity';
+import { TodoComment } from '../../comment/entities/comment.entity';
 import { EntityRepository, Repository, TreeRepository } from 'typeorm';
 
 @EntityRepository(TodoComment)

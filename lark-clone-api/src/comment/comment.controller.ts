@@ -3,7 +3,7 @@ import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { TodoComment } from './entities/comment.entity';
-import { CurrentUser } from 'src/roles/user.decorator';
+import { CurrentUser } from '../roles/user.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 

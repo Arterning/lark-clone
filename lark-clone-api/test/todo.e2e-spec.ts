@@ -4,6 +4,7 @@ import * as request from 'supertest';
 import { TodoModule } from '../src/todo/todo.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../src/user/entities/user.entity';
+import { TodoComment } from '../src/comment/entities/comment.entity';
 import { Todo, TodoStatus } from '../src/todo/entities/todo.entity';
 import { AuthModule } from '../src/auth/auth.module';
 import { TodoRepository } from '../src/db/repositories/TodoRepository';
@@ -17,7 +18,7 @@ describe('TodoController (e2e)', () => {
     database: 'nest_todo',
     username: 'root',
     password: '123456',
-    entities: [User, Todo],
+    entities: [User, Todo, TodoComment],
   });
   let app: INestApplication;
   let bearerToken: string;
@@ -66,7 +67,6 @@ describe('TodoController (e2e)', () => {
       title: 'todo99',
       description: 'desc99',
       status: TodoStatus.TODO,
-      media: '',
     };
 
     return request(app.getHttpServer())

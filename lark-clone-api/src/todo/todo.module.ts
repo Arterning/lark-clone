@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from '../user/user.module';
 import { UserRepository } from '../db/repositories/UserRepository';
 import { TodoRepository } from '../db/repositories/TodoRepository';
-import { TodoCommentRepository } from 'src/db/repositories/TodoCommentRepository';
+import { TodoCommentRepository } from '../db/repositories/TodoCommentRepository';
 
 @Module({
   imports: [

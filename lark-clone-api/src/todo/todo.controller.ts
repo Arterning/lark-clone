@@ -15,7 +15,7 @@ import { Todo } from './entities/todo.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FollowTodoDto } from './dto/follow-todo.dto';
 import { QueryTodoDto } from './dto/query-todo.dto';
-import { SkipJwtAuth } from 'src/auth/constants';
+import { SkipJwtAuth } from '../auth/constants';
 
 @ApiTags('待办事项')
 @ApiBearerAuth()

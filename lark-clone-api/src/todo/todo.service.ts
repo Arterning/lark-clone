@@ -5,10 +5,10 @@ import { Todo, TodoStatus } from './entities/todo.entity';
 import { TodoRepository } from '../db/repositories/TodoRepository';
 import { UserRepository } from '../db/repositories/UserRepository';
 import { FollowSaveType, FollowTodoDto } from './dto/follow-todo.dto';
-import { User } from 'src/user/entities/user.entity';
-import { TodoCommentRepository } from 'src/db/repositories/TodoCommentRepository';
+import { User } from '../user/entities/user.entity';
+import { TodoCommentRepository } from '../db/repositories/TodoCommentRepository';
 import { QueryTodoDto } from './dto/query-todo.dto';
-import { TodoComment } from 'src/comment/entities/comment.entity';
+import { TodoComment } from '../comment/entities/comment.entity';
 
 @Injectable()
 export class TodoService {
@@ -281,7 +281,7 @@ export class TodoService {
     //check all childrens is done
     const childrens = await this.todoRepository
       .createQueryBuilder('todo')
-      .where('todo.parent = :id', { parentId })
+      .where('todo.parentId = :id', { parentId })
       .andWhere('todo.deletedAt IS NULL')
       .getMany();
 
