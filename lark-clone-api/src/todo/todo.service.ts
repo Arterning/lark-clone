@@ -6,9 +6,9 @@ import { TodoRepository } from '../db/repositories/TodoRepository';
 import { UserRepository } from '../db/repositories/UserRepository';
 import { FollowSaveType, FollowTodoDto } from './dto/follow-todo.dto';
 import { User } from 'src/user/entities/user.entity';
-import { TodoComment } from './entities/comment.entity';
 import { TodoCommentRepository } from 'src/db/repositories/TodoCommentRepository';
 import { QueryTodoDto } from './dto/query-todo.dto';
+import { TodoComment } from 'src/comment/entities/comment.entity';
 
 @Injectable()
 export class TodoService {

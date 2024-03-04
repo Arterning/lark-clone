@@ -10,6 +10,7 @@ import { StaticModule } from './static/static.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { CommentModule } from './comment/comment.module';
 
 const DOCKER_ENV = process.env.DOCKER_ENV;
 
@@ -56,7 +57,7 @@ const libModules = [
 ];
 
 @Module({
-  imports: [...libModules, ...businessModules],
+  imports: [...libModules, ...businessModules, CommentModule],
   controllers: [AppController],
   providers: [AppService],
 })

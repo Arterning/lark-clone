@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Todo } from '../../todo/entities/todo.entity';
+import { User } from '../../user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -8,11 +10,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
-import { Todo } from './todo.entity';
 
 @Entity()
 export class TodoComment {
+
   @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string;

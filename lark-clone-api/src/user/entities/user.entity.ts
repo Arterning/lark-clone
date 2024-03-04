@@ -10,12 +10,12 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Todo } from '../../todo/entities/todo.entity';
-import { TodoComment } from 'src/todo/entities/comment.entity';
+import { TodoComment } from '../../comment/entities/comment.entity';
 
 @Entity()
 export class User {
   @ApiProperty({ description: '自增 id' })
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ApiProperty({ description: '标题' })

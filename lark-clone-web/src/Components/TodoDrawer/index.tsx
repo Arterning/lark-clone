@@ -8,11 +8,13 @@ import {
   UserOutlined,
   FileTextOutlined,
   CommentOutlined,
+  PlusOutlined,
   FileOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { User } from "../../types/User";
 import toast, { Toaster } from "react-hot-toast";
+import { RangeValue } from "../../pages/Todo";
 
 interface IProps {
   todoDetail: TodoItem;
@@ -20,6 +22,17 @@ interface IProps {
   visible: boolean;
   onClose?: () => void;
 }
+
+const statusList = [
+  {
+    value: TodoStatus.TODO.toString(),
+    label: "待完成",
+  },
+  {
+    value: TodoStatus.DONE.toString(),
+    label: "已完成",
+  },
+]
 
 const TodoDrawer = (props: IProps) => {
   const { visible, onClose, todoDetail, users } = props;
@@ -32,12 +45,11 @@ const TodoDrawer = (props: IProps) => {
   const [subTodoList, setSubTodoList] = useState<TodoItem[]>([]);
 
   useEffect(() => {
-    setEditTodo(todoDetail);
-
     if (todoDetail?.id) {
       http.get(`/todo/${todoDetail?.id}`).then(({ data }) => {
         setCommentHistory(data?.comments || []);
         setSubTodoList(data?.children || []);
+        setEditTodo(data);
       });
     }
   }, [todoDetail]);
@@ -70,18 +82,6 @@ const TodoDrawer = (props: IProps) => {
     }
   };
 
-  const handleFinishTodo = async () => {
-    try {
-      await http.patch(`/todo/${todoDetail?.id}`, {
-        ...editTodo,
-        status: TodoStatus.DONE,
-      });
-      toast.success("操作成功");
-    } catch (error) {
-      toast.error("操作失败");
-    }
-  };
-
   const handleOnSave = async () => {
     const formattedStartDate = editTodo.startDate
       ? dayjs(editTodo.startDate).format("YYYY-MM-DD")
@@ -91,10 +91,12 @@ const TodoDrawer = (props: IProps) => {
       : undefined;
     try {
       await http.patch(`/todo/${todoDetail?.id}`, {
-        ...editTodo,
+        title: editTodo.title,
+        assignee: editTodo.assignee?.id,
         startDate: formattedStartDate,
         endDate: formattedEndDate,
-        assignee: editTodo.assignee?.id,
+        description: editTodo.description,
+        status: editTodo.status,
       });
       toast.success("操作成功");
     } catch (error) {
@@ -130,6 +132,13 @@ const TodoDrawer = (props: IProps) => {
     });
   };
 
+  const handleSelectStatus = (value: string) => {
+    setEditTodo({
+      ...editTodo,
+      status: value.length ? parseInt(value) : TodoStatus.TODO,
+    });
+  };
+
   const handleDeleteTodo = async () => {
     if (!editTodo?.id) return;
     try {
@@ -141,6 +150,24 @@ const TodoDrawer = (props: IProps) => {
     onClose?.();
 
     window.location.reload();
+  };
+
+  const handleTimeRange = (dates: RangeValue) => {
+    if (dates?.[0] && dates?.[1]) {
+      const startDateStr = dates[0].format("YYYY-MM-DD");
+      const endDateStr = dates[1].format("YYYY-MM-DD");
+      setEditTodo({
+        ...editTodo,
+        startDate: new Date(startDateStr),
+        endDate: new Date(endDateStr),
+      });
+    } else {
+      setEditTodo({
+        ...editTodo,
+        startDate: undefined,
+        endDate: undefined,
+      });
+    }
   };
 
   return (
@@ -164,15 +191,30 @@ const TodoDrawer = (props: IProps) => {
             onChange={handleSelectAssignee}
           />
         </Space>
+        
+        <Space>
+          <PlusOutlined rev={""} />
+          <Select
+            style={{ width: 120 }}
+            value={editTodo?.status.toString()}
+            placeholder="是否完成"
+            options={statusList.map((status) => ({
+              value: status.value,
+              label: status.label,
+            }))}
+            allowClear
+            onChange={handleSelectStatus}
+          />
+        </Space>
+        
         <Space>
           <CalendarOutlined rev={""} />
-          <DatePicker
-            value={editTodo?.startDate}
-            onChange={(date) => setEditTodo({ ...editTodo, startDate: date })}
-          />
-          <DatePicker
-            value={editTodo?.endDate}
-            onChange={(date) => setEditTodo({ ...editTodo, endDate: date })}
+          <DatePicker.RangePicker
+            value={[
+              editTodo?.startDate && dayjs(editTodo?.startDate),
+              editTodo?.endDate && dayjs(editTodo?.endDate),
+            ]}
+            onChange={handleTimeRange}
           />
         </Space>
         <Space>
@@ -187,7 +229,6 @@ const TodoDrawer = (props: IProps) => {
         <Space>
           <EditOutlined rev={""} />
           <Button onClick={handleFollowTodo}>关注</Button>
-          <Button onClick={handleFinishTodo}>完成任务</Button>
           <Button onClick={handleOnSave}>提交</Button>
           <Button onClick={handleDeleteTodo}>删除</Button>
         </Space>

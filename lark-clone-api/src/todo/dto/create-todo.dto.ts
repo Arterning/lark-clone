@@ -12,6 +12,7 @@ export class CreateTodoDto {
   description?: string; // 具体内容
 
   @IsNumber()
+  @IsOptional()
   status?: TodoStatus; // 状态
 
   @IsString()

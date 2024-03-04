@@ -15,7 +15,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
-import { TodoComment } from './comment.entity';
+import { TodoComment } from '../../comment/entities/comment.entity';
 
 export enum TodoStatus {
   TODO = 0, // 待完成

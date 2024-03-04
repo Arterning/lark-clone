@@ -35,7 +35,7 @@ interface QueryTodoDto {
   assignee?: string;
 }
 
-type RangeValue = [Dayjs | null, Dayjs | null] | null;
+export type RangeValue = [Dayjs | null, Dayjs | null] | null;
 
 const sortMenu: MenuProps["items"] = [
   {
