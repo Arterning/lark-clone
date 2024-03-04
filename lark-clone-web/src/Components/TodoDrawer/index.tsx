@@ -243,14 +243,14 @@ const TodoDrawer = (props: IProps) => {
           ></Input.TextArea>
         </Space>
         <Space>
-          <Button onClick={handleOnComment}>评论</Button>
+          <Button onClick={handleOnComment} disabled={!comment}>评论</Button>
         </Space>
         <div className="todo-comment-history">
           {commentHistory.map((comment, index) => (
             <div className="todo-comment" key={index}>
               <div className="head">
                 <Space>
-                  <span>{comment.createdBy?.username || "admin"}</span>
+                  <span>{comment.createdBy?.username || "Unknown"}</span>
                   <span>
                     {dayjs(comment.createdAt).format("YYYY-MM-DD hh:mm")}
                   </span>
@@ -272,14 +272,14 @@ const TodoDrawer = (props: IProps) => {
           ></Input>
         </Space>
         <Space>
-          <Button onClick={handleCreateSubTodo}>创建子任务</Button>
+          <Button onClick={handleCreateSubTodo} disabled={!subTodoTitle}>创建子任务</Button>
         </Space>
         <div className="todo-comment-history">
           {subTodoList.map((subTodo, index) => (
             <div className="todo-comment" key={index}>
               <div className="head">
                 <Space>
-                  <span>{subTodo.createdBy?.username || "admin"}</span>
+                  <span>{subTodo.createdBy?.username || "Unkonwn"}</span>
                   <span>
                     {dayjs(subTodo.createdAt).format("YYYY-MM-DD hh:mm")}
                   </span>

@@ -62,16 +62,16 @@ body {
   padding-left: 256px;
   min-height: 100vh;
 
-  width: 1200px;
+  width: 1400px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .todo-list-filter {
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-between;
   margin-bottom: 10px;
-  padding: 15px;
+  padding: 15px 0px;
 }
 
 

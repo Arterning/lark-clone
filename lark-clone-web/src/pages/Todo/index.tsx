@@ -14,6 +14,7 @@ import TodoList from "../../Components/TodoList";
 import { Skeleton } from "antd";
 import { Dayjs } from "dayjs";
 import { User } from "../../types/User";
+import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 
 interface IProps {
   todoType?:
@@ -24,7 +25,6 @@ interface IProps {
     | "assigned"
     | "finished";
 }
-
 
 interface QueryTodoDto {
   sortBy?: string;
@@ -65,7 +65,7 @@ const Todo = (props: IProps) => {
     title: "",
     status: TodoStatus.TODO,
   });
- 
+
   const [query, setQuery] = useState<QueryTodoDto>();
 
   const fetchUserList = async () => {
@@ -76,9 +76,7 @@ const Todo = (props: IProps) => {
 
   const fetchTodos = useCallback(async () => {
     setLoading(true);
-    const { data } = await http.post<TodoItem[]>(
-      `/todo/${todoType}`, query
-    );
+    const { data } = await http.post<TodoItem[]>(`/todo/${todoType}`, query);
     setTodos(data);
     setLoading(false);
   }, [todoType, query]);
@@ -152,25 +150,25 @@ const Todo = (props: IProps) => {
         ...query,
         sortBy: "createdAt",
         order: "DESC",
-      })
+      });
     } else if (key === "2") {
       setQuery({
         ...query,
         sortBy: "endDate",
         order: "DESC",
-      })
+      });
     } else if (key === "3") {
       setQuery({
         ...query,
-        sortBy: "createdBy",
+        sortBy: "createdById",
         order: "DESC",
-      })
+      });
     } else {
       setQuery({
         ...query,
         sortBy: "id",
         order: "DESC",
-      })
+      });
     }
   };
 
@@ -230,9 +228,28 @@ const Todo = (props: IProps) => {
           >
             <Button>排序</Button>
           </Dropdown>
-          <Button onClick={fetchTodos}>查询</Button>
+          {query?.order === "DESC" ? (
+            <ArrowUpOutlined
+              rev={""}
+              onClick={() => setQuery({ ...query, order: "ASC" })}
+              title="降序"
+            />
+          ) : (
+            <ArrowDownOutlined
+              rev={""}
+              onClick={() => setQuery({ ...query, order: "DESC" })}
+              title="升序"
+            />
+          )}
         </Space>
       </div>
+
+      <Space>
+        <Button onClick={fetchTodos} type="primary">
+          查询
+        </Button>
+        <Button onClick={() => setQuery({})}>重置</Button>
+      </Space>
 
       {loading && <Skeleton paragraph={{ rows: 8 }} />}
 

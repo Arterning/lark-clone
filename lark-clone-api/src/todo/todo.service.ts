@@ -108,25 +108,10 @@ export class TodoService {
    * @returns
    */
   async findOwnedTodos(userId: string, query: QueryTodoDto): Promise<Todo[]> {
-    const { sortBy, order, startDate, endDate, assignee, createdBy } = query;
-    console.log('query condition', query);
-    const qb = this.todoRepository
-      .createQueryBuilder('todo')
-      .where('todo.deletedAt IS NULL')
-      .andWhere('todo.assignee = :assignee', { assignee: assignee || userId })
-      .orderBy(sortBy, order);
-
-    if (createdBy) {
-      qb.andWhere('todo.createdBy = :createdBy', { createdBy: createdBy });
-    }
-
-    if (startDate) {
-      qb.andWhere('todo.createdAt >= :startDate', { startDate: startDate });
-    }
-
-    if (endDate) {
-      qb.andWhere('todo.createdAt <= :endDate', { endDate: endDate });
-    }
+    const qb = this.buildQuery({
+      ...query,
+      assignee: query.assignee || userId,
+    });
     return qb.getMany();
   }
 
@@ -140,36 +125,22 @@ export class TodoService {
     userId: string,
     query: QueryTodoDto,
   ): Promise<Todo[]> {
-    const { sortBy, order, startDate, endDate, assignee, createdBy } = query;
     const user = await this.userRepository.findOne({
       relations: ['followingTodos'],
       where: { id: userId },
     });
 
     const followingTodos = user.followingTodos;
-    const qb = this.todoRepository
-      .createQueryBuilder('todo')
-      .where('todo.id IN (:...ids)', {
-        ids: followingTodos.map((todo) => todo.id),
-      })
-      .where('todo.deletedAt IS NULL')
-      .orderBy(sortBy, order);
 
-    if (createdBy) {
-      qb.andWhere('todo.createdBy = :createdBy', { createdBy: createdBy });
+    if (!followingTodos || followingTodos.length === 0) {
+      return [];
     }
 
-    if (assignee) {
-      qb.andWhere('todo.assignee = :assignee', { assignee: assignee });
-    }
+    const qb = this.buildQuery(query);
+    qb.andWhere('todo.id IN (:...ids)', {
+      ids: followingTodos.map((todo) => todo.id),
+    });
 
-    if (startDate) {
-      qb.andWhere('todo.createdAt >= :startDate', { startDate: startDate });
-    }
-
-    if (endDate) {
-      qb.andWhere('todo.createdAt <= :endDate', { endDate: endDate });
-    }
     return qb.getMany();
   }
 
@@ -360,6 +331,9 @@ export class TodoService {
       qb.andWhere('todo.createdAt <= :endDate', { endDate: endDate });
     }
     qb.orderBy(sortBy, order);
+
+    //left join the createdBy
+    qb.leftJoinAndSelect('todo.createdBy', 'createdBy');
     return qb;
   };
 }
