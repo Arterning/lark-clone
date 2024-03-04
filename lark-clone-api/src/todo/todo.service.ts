@@ -329,7 +329,7 @@ export class TodoService {
       .createQueryBuilder('todo')
       .update(Todo)
       .set({ deletedAt: new Date() })
-      .where('todo.parent = :id', { id })
+      .where('todo.parentId = :id', { id })
       .execute();
     return this.todoRepository.update(id, { deletedAt: new Date() });
   }

@@ -66,7 +66,10 @@ const Todo = (props: IProps) => {
     status: TodoStatus.TODO,
   });
 
-  const [query, setQuery] = useState<QueryTodoDto>();
+  const [query, setQuery] = useState<QueryTodoDto>({
+    order: 'DESC',
+    sortBy: 'createdAt',
+  });
 
   const fetchUserList = async () => {
     const { data } = await http.get<User[]>("/user");
@@ -248,7 +251,10 @@ const Todo = (props: IProps) => {
         <Button onClick={fetchTodos} type="primary">
           查询
         </Button>
-        <Button onClick={() => setQuery({})}>重置</Button>
+        <Button onClick={() => setQuery({
+          order: 'DESC',
+          sortBy: 'createdAt',
+        })}>重置</Button>
       </Space>
 
       {loading && <Skeleton paragraph={{ rows: 8 }} />}
