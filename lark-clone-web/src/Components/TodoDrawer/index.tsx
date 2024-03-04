@@ -108,8 +108,9 @@ const TodoDrawer = (props: IProps) => {
     setComment("");
 
     try {
-      await http.post(`/todo/${todoDetail?.id}/comment`, {
+      await http.post(`comment`, {
         content: comment,
+        todoId: todoDetail?.id,
       });
 
       http.get(`/todo/${todoDetail?.id}`).then(({ data }) => {

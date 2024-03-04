@@ -1,26 +1,50 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { TodoCommentRepository } from '../db/repositories/TodoCommentRepository';
+import { TodoComment } from './entities/comment.entity';
+import { User } from 'src/user/entities/user.entity';
+import { TodoRepository } from 'src/db/repositories/TodoRepository';
 
 @Injectable()
 export class CommentService {
-  create(createCommentDto: CreateCommentDto) {
-    return 'This action adds a new comment';
+
+  constructor(private commentRepository: TodoCommentRepository,
+    private todoRepository: TodoRepository) {}
+
+  async create(userInfo: User, createCommentDto: CreateCommentDto): Promise<TodoComment> {
+
+    const todo = await this.todoRepository.findOne(createCommentDto.todoId, {
+      where: { deletedAt: null },
+    });
+
+    if (!todo) {
+      return;
+    }
+
+    const comment = new TodoComment();
+    comment.content = createCommentDto.content;
+    comment.todo = todo;
+    comment.createdBy = userInfo;
+    return this.commentRepository.save(comment);
   }
 
-  findAll() {
-    return `This action returns all comment`;
+  findAll(): Promise<TodoComment[]> {
+    return this.commentRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} comment`;
+  findOne(id: string): Promise<TodoComment> {
+    return this.commentRepository.findOne(id);
   }
 
-  update(id: number, updateCommentDto: UpdateCommentDto) {
-    return `This action updates a #${id} comment`;
+  update(id: string, updateCommentDto: UpdateCommentDto, userInfo) {
+    return this.commentRepository.update(id, {
+      ...updateCommentDto,
+      createdBy: userInfo
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} comment`;
+  remove(id: string) {
+    return this.commentRepository.update(id, { deletedAt: new Date() });
   }
 }
