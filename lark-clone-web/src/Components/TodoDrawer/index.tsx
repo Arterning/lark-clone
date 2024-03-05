@@ -58,7 +58,7 @@ const TodoDrawer = (props: IProps) => {
         setSubTodoList(data?.children || []);
         setEditTodo(data);
 
-        todoDetail?.follower?.forEach((user) => {
+        data?.follower?.forEach((user: User) => {
           if (user.id === userInfo?.id) {
             setIsFollowTodo(true);
           }
@@ -94,6 +94,7 @@ const TodoDrawer = (props: IProps) => {
     } catch (error) {
       toast.error("操作失败");
     }
+    refresher();
   };
 
   const handleUnFollowTodo = async () => {
@@ -107,6 +108,7 @@ const TodoDrawer = (props: IProps) => {
     } catch (error) {
       toast.error("操作失败");
     }
+    refresher();
   };
 
   const handleOnSave = async () => {

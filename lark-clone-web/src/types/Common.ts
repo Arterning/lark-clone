@@ -1,4 +1,4 @@
 export enum FollowSaveType {
-    FOLLOW = 0,
-    UN_FOLLOW = 1,
+    FOLLOW = 1,
+    UN_FOLLOW = 0,
 }

@@ -68,6 +68,7 @@ export class TodoService {
     const followingTodos = user.followingTodos;
 
     const index = followingTodos.findIndex((item) => item.id === todo.id);
+    console.log(followingTodos, index, type)
     if (index === -1) {
       if (type === FollowSaveType.UN_FOLLOW) {
         return;
@@ -77,8 +78,10 @@ export class TodoService {
       if (type === FollowSaveType.FOLLOW) {
         return;
       }
+      console.log("index", index)
       followingTodos.splice(index, 1);
     }
+    console.log(followingTodos);
     user.followingTodos = followingTodos;
     await this.userRepository.save(user);
 

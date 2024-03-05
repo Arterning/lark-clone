@@ -1,9 +1,9 @@
 import { Optional } from "@nestjs/common";
-import { IsString } from "class-validator";
+import { IsEnum, IsString } from "class-validator";
 
 export enum FollowSaveType {
-    FOLLOW = 0,
-    UN_FOLLOW = 1,
+    FOLLOW = 1,
+    UN_FOLLOW = 0,
 }
 
 
@@ -14,5 +14,7 @@ export class FollowTodoDto {
 
 
   @Optional()
-  type: FollowSaveType = FollowSaveType.FOLLOW;
+  @IsEnum(FollowSaveType)
+  type: FollowSaveType;
+  
 }
