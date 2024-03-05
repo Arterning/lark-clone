@@ -22,6 +22,7 @@ interface IProps {
   todoDetail: TodoItem;
   users: User[];
   visible: boolean;
+  refresher: () => void;
   onClose?: () => void;
 }
 
@@ -37,7 +38,7 @@ const statusList = [
 ]
 
 const TodoDrawer = (props: IProps) => {
-  const { visible, onClose, todoDetail, users } = props;
+  const { visible, todoDetail, users, refresher, onClose } = props;
 
   const [editTodo, setEditTodo] = useState<TodoItem>(todoDetail);
   const [comment, setComment] = useState<string>("");
@@ -129,6 +130,7 @@ const TodoDrawer = (props: IProps) => {
       toast.error("操作失败");
     }
     onClose?.();
+    refresher();
   };
 
   const handleOnComment = async () => {
@@ -176,7 +178,7 @@ const TodoDrawer = (props: IProps) => {
     }
     onClose?.();
 
-    window.location.reload();
+    refresher();
   };
 
   const handleTimeRange = (dates: RangeValue) => {

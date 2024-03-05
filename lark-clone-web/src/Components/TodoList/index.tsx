@@ -7,6 +7,7 @@ import { User } from "../../types/User";
 interface Props {
   todoList: TodoItem[];
   users: User[];
+  refresher: () => void;
   onDelete: (id: number) => void;
   onEdit: (todo: TodoItem) => void;
 }
@@ -18,7 +19,7 @@ const defaultTodo: Omit<TodoItem, "id"> = {
 };
 
 const TodoList: FC<Props> = (props: Props) => {
-  const { todoList, users } = props;
+  const { todoList, users, refresher } = props;
   const [visible, setVisible] = useState<boolean>(false);
   const [detail, setDetail] = useState<TodoItem>(defaultTodo);
 
@@ -41,6 +42,7 @@ const TodoList: FC<Props> = (props: Props) => {
         onClose={() => setVisible(false)}
         todoDetail={detail}
         users={users}
+        refresher={refresher}
       />
     </div>
   );

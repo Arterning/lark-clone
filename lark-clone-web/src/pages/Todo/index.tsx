@@ -265,6 +265,7 @@ const Todo = (props: IProps) => {
           onDelete={deleteTodo}
           onEdit={(todo) => {}}
           users={users}
+          refresher={fetchTodos}
         />
       )}
     </div>
