@@ -10,7 +10,7 @@ import {
   Select,
   Space,
 } from "antd";
-import TodoList from "../../Components/TodoList";
+import TodoList from "../../components/TodoList";
 import { Skeleton } from "antd";
 import { Dayjs } from "dayjs";
 import { User } from "../../types/User";

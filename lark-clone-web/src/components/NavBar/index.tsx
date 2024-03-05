@@ -1,4 +1,3 @@
-import {Link} from "react-router-dom";
 import AuthButton from "../AuthButton";
 import React from "react";
 import { Avatar } from "antd";
