@@ -1,11 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { TodoComment } from './entities/comment.entity';
 import { CurrentUser } from '../roles/user.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-
 
 @ApiTags('待办评论')
 @ApiBearerAuth()
@@ -14,12 +21,15 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post()
-  create(@CurrentUser() userInfo,  @Body() createCommentDto: CreateCommentDto): Promise<TodoComment> {
+  create(
+    @CurrentUser() userInfo,
+    @Body() createCommentDto: CreateCommentDto,
+  ): Promise<TodoComment> {
     return this.commentService.create(userInfo, createCommentDto);
   }
 
   @Get()
-  findAll(): Promise<TodoComment[]>  {
+  findAll(): Promise<TodoComment[]> {
     return this.commentService.findAll();
   }
 
@@ -29,7 +39,11 @@ export class CommentController {
   }
 
   @Patch(':id')
-  update(@CurrentUser() userInfo, @Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
+  update(
+    @CurrentUser() userInfo,
+    @Param('id') id: string,
+    @Body() updateCommentDto: UpdateCommentDto,
+  ) {
     return this.commentService.update(id, updateCommentDto, userInfo);
   }
 

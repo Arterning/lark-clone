@@ -68,7 +68,6 @@ export class TodoService {
     const followingTodos = user.followingTodos;
 
     const index = followingTodos.findIndex((item) => item.id === todo.id);
-    console.log(followingTodos, index, type)
     if (index === -1) {
       if (type === FollowSaveType.UN_FOLLOW) {
         return;
@@ -200,15 +199,9 @@ export class TodoService {
   async findOne(id: string): Promise<Todo> {
     const todo = await this.todoRepository.findOne(id, {
       where: { deletedAt: null },
-      relations: [
-        'createdBy',
-        'assignee',
-        'follower',
-        'comments',
-        'children',
-      ],
+      relations: ['createdBy', 'assignee', 'follower', 'comments', 'children'],
     });
-   
+
     //get comment ids
     const comments = todo.comments;
     if (comments) {
@@ -220,7 +213,6 @@ export class TodoService {
       });
       todo.comments = todoComments;
     }
-
 
     //get children ids
     const children = todo.children;
@@ -255,9 +247,7 @@ export class TodoService {
 
     const todo = await this.todoRepository.findOne(id, {
       where: { deletedAt: null },
-      relations: [
-        'parent',
-      ]
+      relations: ['parent'],
     });
 
     if (!todo) {
@@ -357,7 +347,7 @@ export class TodoService {
     if (endDate) {
       qb.andWhere('todo.createdAt <= :endDate', { endDate: endDate });
     }
-    qb.orderBy(sortBy, order);
+    qb.orderBy(sortBy !== 'id' ? sortBy : 'todo.id', order);
 
     //left join the createdBy
     qb.leftJoinAndSelect('todo.createdBy', 'createdBy');

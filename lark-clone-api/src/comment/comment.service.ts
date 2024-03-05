@@ -8,12 +8,15 @@ import { TodoRepository } from '../db/repositories/TodoRepository';
 
 @Injectable()
 export class CommentService {
+  constructor(
+    private commentRepository: TodoCommentRepository,
+    private todoRepository: TodoRepository,
+  ) {}
 
-  constructor(private commentRepository: TodoCommentRepository,
-    private todoRepository: TodoRepository) {}
-
-  async create(userInfo: User, createCommentDto: CreateCommentDto): Promise<TodoComment> {
-
+  async create(
+    userInfo: User,
+    createCommentDto: CreateCommentDto,
+  ): Promise<TodoComment> {
     const todo = await this.todoRepository.findOne(createCommentDto.todoId, {
       where: { deletedAt: null },
     });
@@ -40,7 +43,7 @@ export class CommentService {
   update(id: string, updateCommentDto: UpdateCommentDto, userInfo) {
     return this.commentRepository.update(id, {
       ...updateCommentDto,
-      createdBy: userInfo
+      createdBy: userInfo,
     });
   }
 
