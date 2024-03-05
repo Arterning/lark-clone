@@ -317,6 +317,7 @@ export class TodoService {
   }
 
   async remove(id: string) {
+    await this.todoRepository.update(id, { deletedAt: new Date() });
     //remove all children todos
     await this.todoRepository
       .createQueryBuilder('todo')
