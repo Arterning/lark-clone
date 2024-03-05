@@ -53,7 +53,6 @@ export class TodoService {
     followTodoDto: FollowTodoDto,
   ): Promise<Todo> {
     const { todoId, type = FollowSaveType.FOLLOW } = followTodoDto;
-    console.log('userId', userId);
 
     const todo = await this.todoRepository.findOne(todoId);
 

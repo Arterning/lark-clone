@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, DatePicker, Drawer, Flex, Input, Select, Space } from "antd";
 import { TodoComment, TodoItem, TodoStatus } from "../../types/Todo";
 import http from "../../http";
@@ -15,6 +15,8 @@ import dayjs from "dayjs";
 import { User } from "../../types/User";
 import toast, { Toaster } from "react-hot-toast";
 import { RangeValue } from "../../pages/Todo";
+import AuthContext from "../../contexts/AuthContext";
+import { FollowSaveType } from "../../types/Common";
 
 interface IProps {
   todoDetail: TodoItem;
@@ -40,9 +42,13 @@ const TodoDrawer = (props: IProps) => {
   const [editTodo, setEditTodo] = useState<TodoItem>(todoDetail);
   const [comment, setComment] = useState<string>("");
   const [subTodoTitle, setSubTodoTitle] = useState<string>("");
+  const [isFollowTodo, setIsFollowTodo] = useState<boolean>(false);
+
 
   const [commentHistory, setCommentHistory] = useState<TodoComment[]>([]);
   const [subTodoList, setSubTodoList] = useState<TodoItem[]>([]);
+
+  const { userInfo } = useContext(AuthContext);
 
   useEffect(() => {
     if (todoDetail?.id) {
@@ -50,9 +56,15 @@ const TodoDrawer = (props: IProps) => {
         setCommentHistory(data?.comments || []);
         setSubTodoList(data?.children || []);
         setEditTodo(data);
+
+        todoDetail?.follower?.forEach((user) => {
+          if (user.id === userInfo?.id) {
+            setIsFollowTodo(true);
+          }
+        })
       });
     }
-  }, [todoDetail]);
+  }, [todoDetail, userInfo]);
 
   const handleCreateSubTodo = async () => {
     try {
@@ -74,8 +86,23 @@ const TodoDrawer = (props: IProps) => {
     try {
       await http.post(`/todo/follow-todo`, {
         todoId: todoDetail?.id,
+        type: FollowSaveType.FOLLOW
       });
       toast.success("操作成功");
+      setIsFollowTodo(true);
+    } catch (error) {
+      toast.error("操作失败");
+    }
+  };
+
+  const handleUnFollowTodo = async () => {
+    try {
+      await http.post(`/todo/follow-todo/`, {
+        todoId: todoDetail?.id,
+        type: FollowSaveType.UN_FOLLOW
+      });
+      toast.success("操作成功");
+      setIsFollowTodo(false);
     } catch (error) {
       toast.error("操作失败");
     }
@@ -228,7 +255,11 @@ const TodoDrawer = (props: IProps) => {
         </Space>
         <Space>
           <EditOutlined rev={""} />
-          <Button onClick={handleFollowTodo}>关注</Button>
+          {
+            isFollowTodo
+              ? <Button onClick={handleUnFollowTodo}>取消关注</Button>
+              : <Button onClick={handleFollowTodo}>关注</Button>
+          }
           <Button onClick={handleOnSave}>提交</Button>
           <Button onClick={handleDeleteTodo}>删除</Button>
         </Space>

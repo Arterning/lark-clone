@@ -13,6 +13,7 @@ export interface TodoItem {
   startDate?: Date;
   endDate?: Date;
   assignee?: User; // 分配任务的用户
+  follower?: User[];// 关注任务的用户
   createdBy?: User; // 创建人
   updatedBy?: User; // 更新人
   createdAt?: Date; // 创建时间
