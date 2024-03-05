@@ -78,10 +78,8 @@ export class TodoService {
       if (type === FollowSaveType.FOLLOW) {
         return;
       }
-      console.log("index", index)
       followingTodos.splice(index, 1);
     }
-    console.log(followingTodos);
     user.followingTodos = followingTodos;
     await this.userRepository.save(user);
 
@@ -257,6 +255,9 @@ export class TodoService {
 
     const todo = await this.todoRepository.findOne(id, {
       where: { deletedAt: null },
+      relations: [
+        'parent',
+      ]
     });
 
     if (!todo) {
@@ -283,8 +284,8 @@ export class TodoService {
     //check all childrens is done
     const childrens = await this.todoRepository
       .createQueryBuilder('todo')
-      .where('todo.parentId = :id', { parentId })
-      .andWhere('todo.deletedAt IS NULL')
+      .where('todo.deletedAt IS NULL')
+      .andWhere('todo.parent = :parentId', { parentId: parentId })
       .getMany();
 
     if (childrens.length > 0) {
