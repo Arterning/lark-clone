@@ -6,9 +6,12 @@ services:
     image: mysql
     restart: always
     environment:
-      MYSQL_DATABASE: nest_tddo
+      MYSQL_DATABASE: nest_todo
       MYSQL_ROOT_PASSWORD: 123456
     ports:
       - 3306:3306
     volumes:
-      - mysql_data:/var/lib/mysql  
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
