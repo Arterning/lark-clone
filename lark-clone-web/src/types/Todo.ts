@@ -22,7 +22,7 @@ export interface TodoItem {
 }
 
 export interface TodoComment {
-  id?: string; // 自增 id
+  id: string; // 自增 id
   content?: string; // 内容
   createdBy?: User; // 创建人
   createdAt?: Date; // 创建时间

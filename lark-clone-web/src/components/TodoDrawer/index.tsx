@@ -9,7 +9,8 @@ import {
   FileTextOutlined,
   CommentOutlined,
   PlusOutlined,
-  FileOutlined
+  FileOutlined,
+  DeleteOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { User } from "../../types/User";
@@ -201,6 +202,18 @@ const TodoDrawer = (props: IProps) => {
     }
   };
 
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await http.delete(`comment/${commentId}`);
+      http.get(`/todo/${todoDetail?.id}`).then(({ data }) => {
+        setCommentHistory(data?.comments || []);
+      });
+      toast.success("操作成功");
+    } catch (error) {
+      toast.error("操作失败");
+    }
+  }
+
   return (
     <Drawer title="Todo Drawer" onClose={onClose} open={visible} width="46%">
       <Flex gap="middle" vertical>
@@ -290,6 +303,17 @@ const TodoDrawer = (props: IProps) => {
                   <span>
                     {dayjs(comment.createdAt).format("YYYY-MM-DD hh:mm")}
                   </span>
+                  {/* Delete comment */}
+                  {
+                    comment.createdBy?.id === userInfo?.id
+                      ? <span
+                        onClick={() => handleDeleteComment(comment.id)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <DeleteOutlined rev={""} />
+                      </span>
+                      : null
+                  }
                 </Space>
               </div>
               <div className="content">{comment.content}</div>

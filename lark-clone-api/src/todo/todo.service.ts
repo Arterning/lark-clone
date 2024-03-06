@@ -177,7 +177,7 @@ export class TodoService {
   ): Promise<Todo[]> {
     const qb = this.buildQuery(query);
     if (!query.assignee) {
-      qb.andWhere('todo.assignee IS NULL');
+      qb.andWhere('todo.assignee IS NOT NULL');
     }
     return qb.getMany();
   }
