@@ -17,6 +17,7 @@ const DOCKER_ENV = process.env.DOCKER_ENV;
 const businessModules = [
   AuthModule,
   TodoModule,
+  CommentModule,
   UserModule,
   UploadModule,
   StaticModule,
@@ -57,7 +58,7 @@ const libModules = [
 ];
 
 @Module({
-  imports: [...libModules, ...businessModules, CommentModule],
+  imports: [...libModules, ...businessModules],
   controllers: [AppController],
   providers: [AppService],
 })
