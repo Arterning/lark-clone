@@ -10,7 +10,7 @@ import {
   CommentOutlined,
   PlusOutlined,
   FileOutlined,
-  DeleteOutlined
+  DeleteOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { User } from "../../types/User";
@@ -23,6 +23,7 @@ interface IProps {
   todoDetail: TodoItem;
   users: User[];
   visible: boolean;
+  updateDetail: (todo: TodoItem | undefined) => void;
   refresher: () => void;
   onClose?: () => void;
 }
@@ -36,16 +37,16 @@ const statusList = [
     value: TodoStatus.DONE.toString(),
     label: "已完成",
   },
-]
+];
 
 const TodoDrawer = (props: IProps) => {
-  const { visible, todoDetail, users, refresher, onClose } = props;
+  const { visible, todoDetail, users, updateDetail, refresher, onClose } =
+    props;
 
   const [editTodo, setEditTodo] = useState<TodoItem>(todoDetail);
   const [comment, setComment] = useState<string>("");
   const [subTodoTitle, setSubTodoTitle] = useState<string>("");
   const [isFollowTodo, setIsFollowTodo] = useState<boolean>(false);
-
 
   const [commentHistory, setCommentHistory] = useState<TodoComment[]>([]);
   const [subTodoList, setSubTodoList] = useState<TodoItem[]>([]);
@@ -63,7 +64,7 @@ const TodoDrawer = (props: IProps) => {
           if (user.id === userInfo?.id) {
             setIsFollowTodo(true);
           }
-        })
+        });
       });
     }
   }, [todoDetail, userInfo]);
@@ -78,6 +79,7 @@ const TodoDrawer = (props: IProps) => {
       http.get(`/todo/${todoDetail?.id}`).then(({ data }) => {
         setSubTodoList(data?.children || []);
       });
+      setSubTodoTitle("");
       toast.success("操作成功");
     } catch (error) {
       toast.error("操作失败");
@@ -88,7 +90,7 @@ const TodoDrawer = (props: IProps) => {
     try {
       await http.post(`/todo/follow-todo`, {
         todoId: todoDetail?.id,
-        type: FollowSaveType.FOLLOW
+        type: FollowSaveType.FOLLOW,
       });
       toast.success("操作成功");
       setIsFollowTodo(true);
@@ -102,7 +104,7 @@ const TodoDrawer = (props: IProps) => {
     try {
       await http.post(`/todo/follow-todo/`, {
         todoId: todoDetail?.id,
-        type: FollowSaveType.UN_FOLLOW
+        type: FollowSaveType.UN_FOLLOW,
       });
       toast.success("操作成功");
       setIsFollowTodo(false);
@@ -212,7 +214,7 @@ const TodoDrawer = (props: IProps) => {
     } catch (error) {
       toast.error("操作失败");
     }
-  }
+  };
 
   return (
     <Drawer title="Todo Drawer" onClose={onClose} open={visible} width="46%">
@@ -235,7 +237,7 @@ const TodoDrawer = (props: IProps) => {
             onChange={handleSelectAssignee}
           />
         </Space>
-        
+
         <Space>
           <PlusOutlined rev={""} />
           <Select
@@ -250,7 +252,7 @@ const TodoDrawer = (props: IProps) => {
             onChange={handleSelectStatus}
           />
         </Space>
-        
+
         <Space>
           <CalendarOutlined rev={""} />
           <DatePicker.RangePicker
@@ -272,11 +274,11 @@ const TodoDrawer = (props: IProps) => {
         </Space>
         <Space>
           <EditOutlined rev={""} />
-          {
-            isFollowTodo
-              ? <Button onClick={handleUnFollowTodo}>取消关注</Button>
-              : <Button onClick={handleFollowTodo}>关注</Button>
-          }
+          {isFollowTodo ? (
+            <Button onClick={handleUnFollowTodo}>取消关注</Button>
+          ) : (
+            <Button onClick={handleFollowTodo}>关注</Button>
+          )}
           <Button onClick={handleOnSave}>提交</Button>
           <Button onClick={handleDeleteTodo}>删除</Button>
         </Space>
@@ -292,7 +294,9 @@ const TodoDrawer = (props: IProps) => {
           ></Input.TextArea>
         </Space>
         <Space>
-          <Button onClick={handleOnComment} disabled={!comment}>评论</Button>
+          <Button onClick={handleOnComment} disabled={!comment}>
+            评论
+          </Button>
         </Space>
         <div className="todo-comment-history">
           {commentHistory.map((comment, index) => (
@@ -304,16 +308,14 @@ const TodoDrawer = (props: IProps) => {
                     {dayjs(comment.createdAt).format("YYYY-MM-DD hh:mm")}
                   </span>
                   {/* Delete comment */}
-                  {
-                    comment.createdBy?.id === userInfo?.id
-                      ? <span
-                        onClick={() => handleDeleteComment(comment.id)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <DeleteOutlined rev={""} />
-                      </span>
-                      : null
-                  }
+                  {comment.createdBy?.id === userInfo?.id ? (
+                    <span
+                      onClick={() => handleDeleteComment(comment.id)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <DeleteOutlined rev={""} />
+                    </span>
+                  ) : null}
                 </Space>
               </div>
               <div className="content">{comment.content}</div>
@@ -321,6 +323,20 @@ const TodoDrawer = (props: IProps) => {
           ))}
         </div>
       </Flex>
+
+      {editTodo?.parent?.id ? (
+        <Flex gap={"middle"} vertical>
+          <div className="sub-todo-title">
+            <span>父任务 </span>
+            <span
+              onClick={() => updateDetail(editTodo?.parent)}
+              style={{ cursor: "pointer" }}
+            >
+              {editTodo?.parent?.title}
+            </span>
+          </div>
+        </Flex>
+      ) : null}
 
       <Flex gap="middle" vertical>
         <div className="sub-todo-title">子任务</div>
@@ -332,7 +348,9 @@ const TodoDrawer = (props: IProps) => {
           ></Input>
         </Space>
         <Space>
-          <Button onClick={handleCreateSubTodo} disabled={!subTodoTitle}>创建子任务</Button>
+          <Button onClick={handleCreateSubTodo} disabled={!subTodoTitle}>
+            创建子任务
+          </Button>
         </Space>
         <div className="todo-comment-history">
           {subTodoList.map((subTodo, index) => (
@@ -342,6 +360,12 @@ const TodoDrawer = (props: IProps) => {
                   <span>{subTodo.createdBy?.username || "Unkonwn"}</span>
                   <span>
                     {dayjs(subTodo.createdAt).format("YYYY-MM-DD hh:mm")}
+                  </span>
+                  <span
+                    onClick={() => updateDetail(subTodo)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Detail
                   </span>
                 </Space>
               </div>

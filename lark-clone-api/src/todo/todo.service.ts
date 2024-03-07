@@ -199,7 +199,7 @@ export class TodoService {
   async findOne(id: string): Promise<Todo> {
     const todo = await this.todoRepository.findOne(id, {
       where: { deletedAt: null },
-      relations: ['createdBy', 'assignee', 'follower', 'comments', 'children'],
+      relations: ['createdBy', 'assignee', 'follower', 'comments', 'children', 'parent'],
     });
 
     //get comment ids

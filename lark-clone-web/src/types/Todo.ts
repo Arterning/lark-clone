@@ -12,6 +12,8 @@ export interface TodoItem {
   status: TodoStatus; // 状态
   startDate?: Date;
   endDate?: Date;
+  parent?: TodoItem;
+  children?: TodoItem[];
   assignee?: User; // 分配任务的用户
   follower?: User[];// 关注任务的用户
   createdBy?: User; // 创建人

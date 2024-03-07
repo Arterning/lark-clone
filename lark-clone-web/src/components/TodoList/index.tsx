@@ -23,6 +23,14 @@ const TodoList: FC<Props> = (props: Props) => {
   const [visible, setVisible] = useState<boolean>(false);
   const [detail, setDetail] = useState<TodoItem>(defaultTodo);
 
+  const updateDetail = (todo: TodoItem | undefined) => {
+    if (!todo) {
+      return;
+    }
+    setDetail(todo);
+    setVisible(true);
+  }
+
   return (
     <div className="todo-list">
       {todoList
@@ -30,10 +38,7 @@ const TodoList: FC<Props> = (props: Props) => {
           <div key={todo.id}>
             <TodoCard
               data={todo}
-              onDetail={() => {
-                setVisible(true);
-                setDetail(todo);
-              }}
+              onDetail={() => updateDetail(todo)}
             />
           </div>
         ))}
@@ -41,6 +46,7 @@ const TodoList: FC<Props> = (props: Props) => {
         visible={visible}
         onClose={() => setVisible(false)}
         todoDetail={detail}
+        updateDetail={updateDetail}
         users={users}
         refresher={refresher}
       />
